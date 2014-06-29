@@ -1,0 +1,146 @@
+[
+    {
+        "model": "task_admin.type",
+        "fields": {
+            "name": "Case"
+        }
+    },
+    {
+        "model": "task_admin.type",
+        "fields": {
+            "name": "Report"
+        }
+    },
+    {
+        "model": "task_admin.type",
+        "fields": {
+            "name": "Creative"
+        }
+    },
+    {
+        "model": "task_admin.type",
+        "fields": {
+            "name": "General"
+        }
+    },
+    {
+        "model": "task_admin.type",
+        "fields": {
+            "name": "Other"
+        }
+    },
+    {
+        "model": "task_admin.tag",
+        "fields": {
+            "name": "Websites IT & Software"
+        }
+    },
+    {
+        "model": "task_admin.tag",
+        "fields": {
+            "name": "Writing"
+        }
+    },
+    {
+        "model": "task_admin.tag",
+        "fields": {
+            "name": "Design"
+        }
+    },
+    {
+        "model": "task_admin.tag",
+        "fields": {
+            "name": "Data entry"
+        }
+    },
+    {
+        "model": "task_admin.tag",
+        "fields": {
+            "name": "Mobile"
+        }
+    },
+    {
+        "model": "task_admin.tag",
+        "fields": {
+            "name": "Product manufacturing"
+        }
+    },
+    {
+        "model": "task_admin.tag",
+        "fields": {
+            "name": "Sales"
+        }
+    },
+    {
+        "model": "task_admin.tag",
+        "fields": {
+            "name": "Marketing"
+        }
+    },
+    {
+        "model": "task_admin.tag",
+        "fields": {
+            "name": "Business"
+        }
+    },
+    {
+        "model": "task_admin.tag",
+        "fields": {
+            "name": "Accounting"
+        }
+    },
+    {
+        "model": "task_admin.tag",
+        "fields": {
+            "name": "Legal"
+        }
+    },
+    {
+        "model": "task_admin.tag",
+        "fields": {
+            "name": "Other"
+        }
+    },
+    {
+        "model": "task_admin.tag",
+        "fields": {
+            "name": "General"
+        }
+    },
+    {
+        "model": "task_admin.task",
+        "fields": {
+            "title": "foo bar",
+            "type": 1,
+            "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque hendrerit eros nec aliquam imperdiet. Maecenas facilisis odio posuere.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque hendrerit eros nec aliquam imperdiet. Maecenas facilisis odio posuere.",
+            "requirements": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque hendrerit eros nec aliquam imperdiet. Maecenas facilisis odio posuere.",
+            "submission_type": "TX",
+            "application_deadline": "2014-06-29",
+            "start_date": "2014-06-29",
+            "finish_date": "2014-06-29",
+            "number_of_positions_available": 1,
+            "expected_results": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque hendrerit eros nec aliquam imperdiet. Maecenas facilisis odio posuere.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque hendrerit eros nec aliquam imperdiet. Maecenas facilisis odio posuere."
+        }
+    },
+    {
+        "model": "task_admin.task_tags",
+        "fields": {
+            "task_id": 1,
+            "tag_id": 1
+        }
+
+    }
+]
+
+
+
+
+
+
+
+
+
+
+
+
+
