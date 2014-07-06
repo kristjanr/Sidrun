@@ -1,134 +1,207 @@
 [
     {
         "model": "task_admin.type",
+        "pk": 1,
         "fields": {
-            "name": "Case"
+            "name": "Case",
+            "icon": "type_icons/icon.png"
         }
     },
     {
         "model": "task_admin.type",
+        "pk": 2,
         "fields": {
-            "name": "Report"
+            "name": "Report",
+            "icon": ""
         }
     },
     {
         "model": "task_admin.type",
+        "pk": 3,
         "fields": {
-            "name": "Creative"
+            "name": "Creative",
+            "icon": ""
         }
     },
     {
         "model": "task_admin.type",
+        "pk": 4,
         "fields": {
-            "name": "General"
+            "name": "General",
+            "icon": ""
         }
     },
     {
         "model": "task_admin.type",
+        "pk": 5,
         "fields": {
-            "name": "Other"
+            "name": "Other",
+            "icon": ""
         }
     },
     {
         "model": "task_admin.tag",
+        "pk": 1,
         "fields": {
             "name": "Websites IT & Software"
         }
     },
     {
         "model": "task_admin.tag",
+        "pk": 2,
         "fields": {
             "name": "Writing"
         }
     },
     {
         "model": "task_admin.tag",
+        "pk": 3,
         "fields": {
             "name": "Design"
         }
     },
     {
         "model": "task_admin.tag",
+        "pk": 4,
         "fields": {
             "name": "Data entry"
         }
     },
     {
         "model": "task_admin.tag",
+        "pk": 5,
         "fields": {
             "name": "Mobile"
         }
     },
     {
         "model": "task_admin.tag",
+        "pk": 6,
         "fields": {
             "name": "Product manufacturing"
         }
     },
     {
         "model": "task_admin.tag",
+        "pk": 7,
         "fields": {
             "name": "Sales"
         }
     },
     {
         "model": "task_admin.tag",
+        "pk": 8,
         "fields": {
             "name": "Marketing"
         }
     },
     {
         "model": "task_admin.tag",
+        "pk": 9,
         "fields": {
             "name": "Business"
         }
     },
     {
         "model": "task_admin.tag",
+        "pk": 10,
         "fields": {
             "name": "Accounting"
         }
     },
     {
         "model": "task_admin.tag",
+        "pk": 11,
         "fields": {
             "name": "Legal"
         }
     },
     {
         "model": "task_admin.tag",
+        "pk": 12,
         "fields": {
             "name": "Other"
         }
     },
     {
         "model": "task_admin.tag",
+        "pk": 13,
         "fields": {
             "name": "General"
         }
     },
     {
         "model": "task_admin.task",
+        "pk": 1,
         "fields": {
-            "title": "foo bar",
-            "type": 1,
-            "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque hendrerit eros nec aliquam imperdiet. Maecenas facilisis odio posuere.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque hendrerit eros nec aliquam imperdiet. Maecenas facilisis odio posuere.",
+            "extra_material": null,
+            "start_date": "2014-06-29",
             "requirements": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque hendrerit eros nec aliquam imperdiet. Maecenas facilisis odio posuere.",
+            "title": "foo bar",
+            "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque hendrerit eros nec aliquam imperdiet. Maecenas facilisis odio posuere.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque hendrerit eros nec aliquam imperdiet. Maecenas facilisis odio posuere.",
             "submission_type": "TX",
             "application_deadline": "2014-06-29",
-            "start_date": "2014-06-29",
+            "number_of_positions": 1,
+            "tags": [1, 12],
             "finish_date": "2014-06-29",
-            "number_of_positions_available": 1,
-            "expected_results": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque hendrerit eros nec aliquam imperdiet. Maecenas facilisis odio posuere.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque hendrerit eros nec aliquam imperdiet. Maecenas facilisis odio posuere."
+            "type": 1,
+            "expected_results": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque hendrerit eros nec aliquam imperdiet. Maecenas facilisis odio posuere.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque hendrerit eros nec aliquam imperdiet. Maecenas facilisis odio posuere.",
+            "number_of_current_positions": 1
         }
     },
     {
-        "model": "task_admin.task_tags",
+        "model": "auth.user",
         "fields": {
-            "task_id": 1,
-            "tag_id": 1
-        }
-
+            "email": "k@r.ee",
+            "groups": [],
+            "first_name": "",
+            "last_login": "2014-07-06T21:44:54.236Z",
+            "password": "pbkdf2_sha256$12000$td0CEXKT4LIX$AZGicGUl+uC8MYF8VO/GQFlJemkSG0UU65+h/PKn30Q=",
+            "user_permissions": [],
+            "is_active": true,
+            "last_name": "",
+            "is_staff": true,
+            "username": "kristjan",
+            "date_joined": "2014-06-29T20:41:46.886Z",
+            "is_superuser": true
+        },
+        "pk": 1
+    },
+    {
+        "model": "auth.user",
+        "fields": {
+            "email": "",
+            "groups": [],
+            "first_name": "",
+            "last_login": "2014-07-06T20:48:48Z",
+            "password": "pbkdf2_sha256$12000$jNahf9y5bntY$QQUfzA7Cmc/zqknGkHCuWymYC08BMuie3/GGhz57rhg=",
+            "user_permissions": [29, 32],
+            "is_active": true,
+            "last_name": "",
+            "is_staff": true,
+            "username": "intern",
+            "date_joined": "2014-07-06T20:48:48Z",
+            "is_superuser": false
+        },
+        "pk": 2
+    },
+    {
+        "model": "auth.user",
+        "fields": {
+            "email": "",
+            "groups": [],
+            "first_name": "",
+            "last_login": "2014-07-06T20:48:56Z",
+            "password": "pbkdf2_sha256$12000$S0aDSaTi5jze$mv8TiBK9y3JnxBrLpfiX342MQyxq0+KOuPxAKRf4Ac8=",
+            "user_permissions": [34, 35, 29, 36],
+            "is_active": true,
+            "last_name": "",
+            "is_staff": true,
+            "username": "admin",
+            "date_joined": "2014-07-06T20:48:56Z",
+            "is_superuser": false
+        },
+        "pk": 3
     }
 ]
 
