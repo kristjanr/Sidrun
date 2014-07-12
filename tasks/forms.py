@@ -1,5 +1,5 @@
 from django import forms
-from task_admin.models import Tag
+from sidrun.models import Tag
 
 
 class CustomSelectMultipleTags(forms.ModelMultipleChoiceField):

@@ -7,9 +7,9 @@ from django.utils.translation import ugettext as _
 from django.contrib.admin.templatetags.admin_modify import *
 from django.contrib.admin.templatetags.admin_modify import submit_row as original_submit_row
 from django.contrib import messages
-from task_admin import models
+from sidrun import models
 
-from task_admin.models import Tag, Type, ViewTasks, ChangeTasks, TaskForInternFullInfo, InternTask
+from sidrun.models import Tag, Type, ViewTasks, NewTasks, TaskForInternFullInfo, InternTask
 from tasks.forms import AddTypeAndTagsForms
 
 
@@ -108,10 +108,12 @@ class InternTaskEdit(admin.ModelAdmin):
     list_display = ('task_type', 'task_name', 'date_started', 'status', 'feedback')
     fields = ['summary_pitch', 'body', 'conclusion', 'references', 'video']
 
+    def get_queryset(self, request):
+        return super(InternTaskEdit, self).get_queryset(request).filter(user=request.user)
 
 admin.site.register(InternTask, InternTaskEdit)
 admin.site.register(TaskForInternFullInfo, TaskFullInfo)
 admin.site.register(ViewTasks, TaskLessInfo)
-admin.site.register(ChangeTasks, ForAdmin)
+admin.site.register(NewTasks, ForAdmin)
 admin.site.register(Tag, AddTag)
 admin.site.register(Type, AddType)

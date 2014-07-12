@@ -3,7 +3,7 @@ from django.core.validators import MinLengthValidator, MinValueValidator, URLVal
 from django.db import models
 from django.db.models.signals import post_save
 
-from task_admin.validators import YoutubeURLValidator
+from sidrun.validators import YoutubeURLValidator
 
 
 class Type(models.Model):
@@ -75,11 +75,11 @@ class ViewTasks(Task):
         verbose_name_plural = 'View tasks'
 
 
-class ChangeTasks(Task):
+class NewTasks(Task):
     class Meta:
         proxy = True
-        verbose_name = 'task to change'
-        verbose_name_plural = 'tasks'
+        verbose_name = 'new task'
+        verbose_name_plural = 'new tasks'
 
 
 class Profile(models.Model):

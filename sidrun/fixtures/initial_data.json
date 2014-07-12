@@ -1,0 +1,247 @@
+[
+    {
+        "pk": 1,
+        "fields": {
+            "name": "Case",
+            "icon": "type_icons/icon.png"
+        },
+        "model": "sidrun.type"
+    },
+    {
+        "pk": 2,
+        "fields": {
+            "name": "Report",
+            "icon": ""
+        },
+        "model": "sidrun.type"
+    },
+    {
+        "pk": 3,
+        "fields": {
+            "name": "Creative",
+            "icon": ""
+        },
+        "model": "sidrun.type"
+    },
+    {
+        "pk": 4,
+        "fields": {
+            "name": "General",
+            "icon": ""
+        },
+        "model": "sidrun.type"
+    },
+    {
+        "pk": 5,
+        "fields": {
+            "name": "Other",
+            "icon": ""
+        },
+        "model": "sidrun.type"
+    },
+    {
+        "pk": 1,
+        "fields": {
+            "name": "Websites IT & Software"
+        },
+        "model": "sidrun.tag"
+    },
+    {
+        "pk": 2,
+        "fields": {
+            "name": "Writing"
+        },
+        "model": "sidrun.tag"
+    },
+    {
+        "pk": 3,
+        "fields": {
+            "name": "Design"
+        },
+        "model": "sidrun.tag"
+    },
+    {
+        "pk": 4,
+        "fields": {
+            "name": "Data entry"
+        },
+        "model": "sidrun.tag"
+    },
+    {
+        "pk": 5,
+        "fields": {
+            "name": "Mobile"
+        },
+        "model": "sidrun.tag"
+    },
+    {
+        "pk": 6,
+        "fields": {
+            "name": "Product manufacturing"
+        },
+        "model": "sidrun.tag"
+    },
+    {
+        "pk": 7,
+        "fields": {
+            "name": "Sales"
+        },
+        "model": "sidrun.tag"
+    },
+    {
+        "pk": 8,
+        "fields": {
+            "name": "Marketing"
+        },
+        "model": "sidrun.tag"
+    },
+    {
+        "pk": 9,
+        "fields": {
+            "name": "Business"
+        },
+        "model": "sidrun.tag"
+    },
+    {
+        "pk": 10,
+        "fields": {
+            "name": "Accounting"
+        },
+        "model": "sidrun.tag"
+    },
+    {
+        "pk": 11,
+        "fields": {
+            "name": "Legal"
+        },
+        "model": "sidrun.tag"
+    },
+    {
+        "pk": 12,
+        "fields": {
+            "name": "Other"
+        },
+        "model": "sidrun.tag"
+    },
+    {
+        "pk": 13,
+        "fields": {
+            "name": "General"
+        },
+        "model": "sidrun.tag"
+    },
+    {
+        "pk": 1,
+        "fields": {
+            "extra_material": null,
+            "start_date": "2014-06-29",
+            "submission_type": "TX",
+            "expected_results": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque hendrerit eros nec aliquam imperdiet. Maecenas facilisis odio posuere.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque hendrerit eros nec aliquam imperdiet. Maecenas facilisis odio posuere.",
+            "number_of_current_positions": 1,
+            "application_deadline": "2014-06-29",
+            "tags": [1, 12],
+            "title": "foo bar",
+            "number_of_positions": 1,
+            "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque hendrerit eros nec aliquam imperdiet. Maecenas facilisis odio posuere.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque hendrerit eros nec aliquam imperdiet. Maecenas facilisis odio posuere.",
+            "requirements": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque hendrerit eros nec aliquam imperdiet. Maecenas facilisis odio posuere.",
+            "finish_date": "2014-06-29",
+            "type": 1
+        },
+        "model": "sidrun.task"
+    },
+    {
+        "pk": 1,
+        "fields": {
+            "allowed_number_of_tasks": 1,
+            "user": 1
+        },
+        "model": "sidrun.profile"
+    },
+    {
+        "pk": 2,
+        "fields": {
+            "allowed_number_of_tasks": 1,
+            "user": 2
+        },
+        "model": "sidrun.profile"
+    },
+    {
+        "pk": 3,
+        "fields": {
+            "allowed_number_of_tasks": 1,
+            "user": 3
+        },
+        "model": "sidrun.profile"
+    },
+    {
+        "fields": {
+            "name": "interns",
+            "permissions": [41, 32]
+        },
+        "model": "auth.group",
+        "pk": 1
+    },
+    {
+        "fields": {
+            "name": "admins",
+            "permissions": [34, 35, 36]
+        },
+        "model": "auth.group",
+        "pk": 2
+    },
+    {
+        "model": "auth.user",
+        "fields": {
+            "email": "k@r.ee",
+            "groups": [],
+            "first_name": "",
+            "last_login": "2014-07-06T21:44:54.236Z",
+            "password": "pbkdf2_sha256$12000$td0CEXKT4LIX$AZGicGUl+uC8MYF8VO/GQFlJemkSG0UU65+h/PKn30Q=",
+            "user_permissions": [],
+            "is_active": true,
+            "last_name": "",
+            "is_staff": true,
+            "username": "kristjan",
+            "date_joined": "2014-06-29T20:41:46.886Z",
+            "is_superuser": true
+        },
+        "pk": 1
+    },
+    {
+        "fields": {
+            "user_permissions": [],
+            "groups": [2],
+            "username": "mikk",
+            "date_joined": "2014-07-12T18:27:58Z",
+            "is_active": true,
+            "is_superuser": false,
+            "last_login": "2014-07-12T18:28:32.965Z",
+            "is_staff": true,
+            "first_name": "",
+            "last_name": "",
+            "email": "",
+            "password": "pbkdf2_sha256$12000$wICKEsgWr7c0$LGb0kZk73OgTl7ybNjDmZ4SA+SOisk/vDUMQlh0Zoqc="
+        },
+        "model": "auth.user",
+        "pk": 2
+    },
+    {
+        "fields": {
+            "user_permissions": [],
+            "groups": [1],
+            "username": "intern",
+            "date_joined": "2014-07-12T18:28:12Z",
+            "is_active": true,
+            "is_superuser": false,
+            "last_login": "2014-07-12T18:28:52.839Z",
+            "is_staff": true,
+            "first_name": "",
+            "last_name": "",
+            "email": "",
+            "password": "pbkdf2_sha256$12000$mKaOLQFCpo0n$54LVJ6NDzk3IhplEmtZmbKtjYz+tVizmskroVHxtd/Y="
+        },
+        "model": "auth.user",
+        "pk": 3
+    }
+]
+
