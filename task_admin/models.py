@@ -42,8 +42,8 @@ class Task(models.Model):
     start_date = models.DateField()
     finish_date = models.DateField()
     number_of_positions = models.IntegerField(validators=[MinValueValidator(1)],
-                                                        help_text='The number of positions available to the task.')
-    number_of_current_positions = models.IntegerField(help_text='The number of current positions available to the task.')
+                                                        help_text='The number of positions available.')
+    number_of_current_positions = models.IntegerField(help_text='The number of current positions available.')
     expected_results = models.TextField(max_length=1000, validators=[MinLengthValidator(280)])
 
     extra_material = models.TextField(null=True)
@@ -66,18 +66,18 @@ class TaskForInternFullInfo(Task):
         verbose_name_plural = 'Tasks, full info'
 
 
-class TaskForInternLessInfo(Task):
+class ViewTasks(Task):
     class Meta:
         proxy = True
-        verbose_name = 'Available task'
-        verbose_name_plural = 'Available tasks'
+        verbose_name = 'task'
+        verbose_name_plural = 'tasks'
 
 
-class TaskForAdmin(Task):
+class ChangeTasks(Task):
     class Meta:
         proxy = True
-        verbose_name = 'created task'
-        verbose_name_plural = 'Tasks'
+        verbose_name = 'task'
+        verbose_name_plural = 'tasks'
 
 
 class InternTask(models.Model):

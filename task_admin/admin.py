@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from task_admin.models import Tag, Type, TaskForInternLessInfo, TaskForAdmin, TaskForInternFullInfo
+from task_admin.models import Tag, Type, ViewTasks, ChangeTasks, TaskForInternFullInfo
 from tasks.forms import AddTypeAndTagsForms
 
 
@@ -33,7 +33,7 @@ class AddType(admin.ModelAdmin):
 
 
 admin.site.register(TaskForInternFullInfo, TaskFullInfo)
-admin.site.register(TaskForInternLessInfo, TaskLessInfo)
-admin.site.register(TaskForAdmin, ForAdmin)
+admin.site.register(ViewTasks, TaskLessInfo)
+admin.site.register(ChangeTasks, ForAdmin)
 admin.site.register(Tag, AddTag)
 admin.site.register(Type, AddType)
