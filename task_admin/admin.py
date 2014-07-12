@@ -1,10 +1,18 @@
 from django.contrib import admin
 
-from task_admin.models import Tag, Type, ViewTasks, ChangeTasks, TaskForInternFullInfo
-from tasks.forms import AddTypeAndTagsForms
-
+from django.contrib.admin.templatetags.admin_urls import add_preserved_filters
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
+from django.utils.translation import ugettext as _
 from django.contrib.admin.templatetags.admin_modify import *
 from django.contrib.admin.templatetags.admin_modify import submit_row as original_submit_row
+from django.contrib import messages
+from task_admin import models
+
+from task_admin.models import Tag, Type, ViewTasks, ChangeTasks, TaskForInternFullInfo, InternTask
+from tasks.forms import AddTypeAndTagsForms
+
+
 # or
 # original_submit_row = submit_row
 
@@ -38,10 +46,47 @@ class TaskLessInfo(admin.ModelAdmin):
         return super(TaskLessInfo, self).change_view(request, object_id,
                                                      form_url, extra_context=extra_context)
 
+    def response_change(self, request, obj):
+        """
+        Determines the HttpResponse for the change_view stage.
+        """
+        opts = self.model._meta
+        pk_value = obj._get_pk_val()
+        preserved_filters = self.get_preserved_filters(request)
 
-class TaskFullInfo(TaskLessInfo):
-    readonly_fields = TaskLessInfo.readonly_fields + ['expected_results', 'extra_material']
-    fields = TaskLessInfo.fields + ['expected_results', 'extra_material']
+        if "_accept" in request.POST:
+            user = request.user
+            pending_tasks = user.interntask_set
+            n_pending_tasks = pending_tasks.count()
+            allowed_number_of_pending_tasks = user.profile.allowed_number_of_tasks
+            msg = ''
+            if allowed_number_of_pending_tasks <= n_pending_tasks:
+                msg = _('You are allowed to have %d pending tasks. You have already have %d pending tasks!' % (
+                allowed_number_of_pending_tasks, pending_tasks.count()))
+            if pending_tasks.filter(task=obj):
+                msg += _(' You already have this task!')
+            if allowed_number_of_pending_tasks > n_pending_tasks and not pending_tasks.filter(task=obj):
+                new_intern_task = pending_tasks.create(task=obj, user=user, status=models.InternTask.UNFINISHED)
+                new_intern_task_pk = new_intern_task._get_pk_val()
+                msg = _(
+                    'Task %s was assigned to you. You now have %d pending task(s).' % (obj.title, pending_tasks.count()))
+                redirect_url = reverse('admin:%s_%s_change' %
+                                       (opts.app_label, 'interntask'),
+                                       args=(new_intern_task_pk,),
+                                       current_app=self.admin_site.name)
+            else:
+                redirect_url = request.path
+            self.message_user(request, msg, messages.SUCCESS)
+            redirect_url = add_preserved_filters({'preserved_filters': preserved_filters, 'opts': opts}, redirect_url)
+            return HttpResponseRedirect(redirect_url)
+
+
+class TaskFullInfo(admin.ModelAdmin):
+    readonly_fields = ['title', 'tags_list', 'type', 'type_icon', 'description', 'requirements', 'submission_type',
+                       'start_date',
+                       'finish_date', 'number_of_current_positions', 'expected_results', 'extra_material']
+    fields = ['title', 'type', 'description', 'requirements', 'submission_type', 'start_date',
+              'finish_date', 'number_of_current_positions', 'expected_results', 'extra_material']
 
 
 class ForAdmin(admin.ModelAdmin):
@@ -59,6 +104,12 @@ class AddType(admin.ModelAdmin):
     list_display = ('name',)
 
 
+class InternTaskEdit(admin.ModelAdmin):
+    list_display = ('task_type', 'task_name', 'date_started', 'status', 'feedback')
+    fields = ['summary_pitch', 'body', 'conclusion', 'references', 'video']
+
+
+admin.site.register(InternTask, InternTaskEdit)
 admin.site.register(TaskForInternFullInfo, TaskFullInfo)
 admin.site.register(ViewTasks, TaskLessInfo)
 admin.site.register(ChangeTasks, ForAdmin)

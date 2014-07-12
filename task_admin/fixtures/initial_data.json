@@ -175,7 +175,7 @@
             "first_name": "",
             "last_login": "2014-07-06T20:48:48Z",
             "password": "pbkdf2_sha256$12000$jNahf9y5bntY$QQUfzA7Cmc/zqknGkHCuWymYC08BMuie3/GGhz57rhg=",
-            "user_permissions": [29, 32],
+            "user_permissions": [32, 41],
             "is_active": true,
             "last_name": "",
             "is_staff": true,
@@ -202,18 +202,30 @@
             "is_superuser": false
         },
         "pk": 3
+    },
+    {
+        "fields": {
+            "allowed_number_of_tasks": 0,
+            "user": 1
+        },
+        "model": "task_admin.profile",
+        "pk": 1
+    },
+    {
+        "fields": {
+            "allowed_number_of_tasks": 2,
+            "user": 2
+        },
+        "model": "task_admin.profile",
+        "pk": 2
+    },
+    {
+        "fields": {
+            "allowed_number_of_tasks": 0,
+            "user": 3
+        },
+        "model": "task_admin.profile",
+        "pk": 3
     }
 ]
-
-
-
-
-
-
-
-
-
-
-
-
 
