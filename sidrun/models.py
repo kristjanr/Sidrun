@@ -3,8 +3,6 @@ from django.core.validators import MinLengthValidator, MinValueValidator, URLVal
 from django.db import models
 from django.db.models.signals import post_save
 
-from sidrun.validators import YoutubeURLValidator
-
 
 class Type(models.Model):
     name = models.CharField(max_length=25, unique=True)
@@ -60,26 +58,14 @@ class Task(models.Model):
 
     type_icon.allow_tags = True
 
+    verbose_name = 'new task'
 
-class TaskForInternFullInfo(Task):
+
+class AdminTask(Task):
     class Meta:
         proxy = True
-        verbose_name = 'Task full info'
-        verbose_name_plural = 'Tasks, full info'
-
-
-class ViewTasks(Task):
-    class Meta:
-        proxy = True
-        verbose_name = 'view task'
-        verbose_name_plural = 'View tasks'
-
-
-class NewTasks(Task):
-    class Meta:
-        proxy = True
-        verbose_name = 'new task'
-        verbose_name_plural = 'new tasks'
+        verbose_name = 'admin task'
+        verbose_name_plural = 'admin tasks'
 
 
 class Profile(models.Model):
@@ -103,21 +89,22 @@ class InternTask(models.Model):
     UNFINISHED = 'UF'
     UNSUBMITTED = 'US'
     FINISHED = 'FI'
+    ABANDONED = 'AB'
     STATUSES = (
         (UNFINISHED, 'Unfinished'),
         (UNSUBMITTED, 'Unsubmitted'),
-        (FINISHED, 'Finished')
+        (FINISHED, 'Finished'),
+        (ABANDONED, 'Abandoned')
     )
     status = models.CharField(max_length=2, choices=STATUSES)
     date_started = models.DateTimeField(auto_now_add=True)
     # TODO RichTextEditor http://stackoverflow.com/questions/329963/replace-textarea-with-rich-text-editor-in-django-admin
-    summary_pitch = models.TextField(validators=[MinLengthValidator(140)], default='')
-    body = models.TextField(validators=[MinLengthValidator(280)], default='')
-    conclusion = models.TextField(validators=[MinLengthValidator(140)], default='')
+    summary_pitch = models.TextField(validators=[MinLengthValidator(140)], null=True, blank=True)
+    body = models.TextField(validators=[MinLengthValidator(280)], null=True, blank=True)
+    conclusion = models.TextField(validators=[MinLengthValidator(140)], null=True, blank=True)
     # TODO Add more button http://stackoverflow.com/questions/6142025/dynamically-add-field-to-a-form
-    references = models.TextField(validators=[URLValidator()], default='')
-    video = models.TextField(validators=[YoutubeURLValidator()], default='')
-    feedback = models.TextField(null=True)
+    references = models.CharField(max_length=100, validators=[URLValidator()], null=True, blank=True)
+    video = models.CharField(max_length=100, validators=[URLValidator()], null=True, blank=True)
 
     def __unicode__(self):
         return self.user.get_username() + "'s task " + self.task.title
@@ -130,5 +117,3 @@ class InternTask(models.Model):
 
     class Meta:
         unique_together = ('task', 'user',)
-        verbose_name = 'Accepted task'
-        verbose_name_plural = 'Dashboard'

@@ -174,20 +174,20 @@
         "model": "sidrun.profile"
     },
     {
+        "pk": 1,
+        "model": "auth.group",
         "fields": {
             "name": "interns",
-            "permissions": [41, 32]
-        },
-        "model": "auth.group",
-        "pk": 1
+            "permissions": [35, 26]
+        }
     },
     {
+        "pk": 2,
+        "model": "auth.group",
         "fields": {
             "name": "admins",
-            "permissions": [34, 35, 36]
-        },
-        "model": "auth.group",
-        "pk": 2
+            "permissions": [10, 11, 12, 28, 29, 30]
+        }
     },
     {
         "model": "auth.user",
