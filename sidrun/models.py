@@ -99,12 +99,12 @@ class InternTask(models.Model):
     status = models.CharField(max_length=2, choices=STATUSES)
     date_started = models.DateTimeField(auto_now_add=True)
     # TODO RichTextEditor http://stackoverflow.com/questions/329963/replace-textarea-with-rich-text-editor-in-django-admin
-    summary_pitch = models.TextField(validators=[MinLengthValidator(140)], null=True, blank=True)
-    body = models.TextField(validators=[MinLengthValidator(280)], null=True, blank=True)
-    conclusion = models.TextField(validators=[MinLengthValidator(140)], null=True, blank=True)
+    summary_pitch = models.TextField(null=True, blank=True)
+    body = models.TextField(null=True, blank=True)
+    conclusion = models.TextField( null=True, blank=True)
     # TODO Add more button http://stackoverflow.com/questions/6142025/dynamically-add-field-to-a-form
-    references = models.CharField(max_length=100, validators=[URLValidator()], null=True, blank=True)
-    video = models.CharField(max_length=100, validators=[URLValidator()], null=True, blank=True)
+    references = models.CharField(max_length=100, null=True, blank=True)
+    video = models.CharField(max_length=100, null=True, blank=True)
 
     def __unicode__(self):
         return self.user.get_username() + "'s task " + self.task.title

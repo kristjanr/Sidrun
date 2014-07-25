@@ -1,8 +1,10 @@
 {% load i18n admin_urls %}
 <div class="submit-row">
-    {% if show_accept %}<input type="submit" value="{% trans 'Accept task' %}" class="default" name="_accept" />{% endif %}
-    {% if show_abandon %}<input type="submit" value="{% trans 'Abandon task' %}" class="default" name="_abandon" />{% endif %}
-    {% if show_save %}<input type="submit" value="{% trans 'Preview' %}" class="default" name="_save" />{% endif %}
+    {% if show_accept %}<input type="submit" value="{% trans 'Accept' %}" class="default" name="_accept" />{% endif %}
+    {% if show_abandon %}<input type="submit" value="{% trans 'Abandon' %}" class="default" name="_abandon" />{% endif %}
+    {% if show_preview %}<input type="submit" value="{% trans 'Preview' %}" class="default" name="_preview" />{% endif %}
+    {% if show_submit %}<input type="submit" value="{% trans 'Submit' %}" class="default" name="_submit" />{% endif %}
+    {% if show_save %}<input type="submit" value="{% trans 'Save' %}" class="default" name="_save" />{% endif %}
     {% if show_delete_link %}
     {% url opts|admin_urlname:'delete' original.pk|admin_urlquote as delete_url %}
     <p class="deletelink-box"><a href="{% add_preserved_filters delete_url %}" class="deletelink">{% trans "Delete" %}</a></p>

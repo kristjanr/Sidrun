@@ -25,7 +25,9 @@ def submit_row(context):
         'show_save_and_continue': context.get('show_save_and_continue', ctx['show_save_and_continue']),
         'show_save': context.get('show_save', ctx['show_save']),
         'show_abandon': context.get('show_abandon'),
-        'show_accept': context.get('show_accept')
+        'show_accept': context.get('show_accept'),
+        'show_preview': context.get('show_preview'),
+        'show_submit': context.get('show_submit')
     })
     return ctx
 
@@ -47,7 +49,10 @@ class InternTaskInline(admin.StackedInline):
     def get_readonly_fields(self, request, obj=None):
         intern_tasks_of_user = obj.interntask_set.filter(user=request.user)
         user_has_accepted_task = bool(intern_tasks_of_user.count())
-        if user_has_accepted_task and intern_tasks_of_user[0].status == models.InternTask.ABANDONED:
+        interntask_status = intern_tasks_of_user[0].status
+        if user_has_accepted_task and (interntask_status == models.InternTask.ABANDONED
+                                       or interntask_status == models.InternTask.FINISHED
+                                       or request.GET.get('preview')):
             return self.readonly_fields + ('summary_pitch', 'body', 'conclusion', 'references', 'video')
         return self.readonly_fields
 
@@ -66,13 +71,16 @@ class TaskForIntern(admin.ModelAdmin):
             interntask_status = intern_tasks_of_user[0].status
         else:
             interntask_status = None
-        if interntask_status == models.InternTask.UNFINISHED or interntask_status == models.InternTask.UNSUBMITTED:
+        if interntask_status and interntask_status == models.InternTask.UNFINISHED or interntask_status == models.InternTask.UNSUBMITTED:
+            is_preview = bool(request.GET.get('preview'))
             extra_context = {
                 'show_save_and_add_another': False,
-                'show_save_and_continue': user_has_accepted_task,
-                'show_save': user_has_accepted_task,
+                'show_save': False,
+                'show_save_and_continue': user_has_accepted_task and not is_preview,
                 'show_abandon': user_has_accepted_task,
-                'show_accept': not user_has_accepted_task
+                'show_accept': not user_has_accepted_task,
+                'show_preview': user_has_accepted_task and not is_preview,
+                'show_submit': is_preview
             }
         else:
             extra_context = {
@@ -80,7 +88,9 @@ class TaskForIntern(admin.ModelAdmin):
                 'show_save_and_continue': False,
                 'show_save': False,
                 'show_abandon': False,
-                'show_accept': not user_has_accepted_task
+                'show_accept': not user_has_accepted_task,
+                'show_preview': False,
+                'show_submit': False
             }
         return super(TaskForIntern, self).change_view(request, object_id,
                                                       form_url, extra_context=extra_context)
@@ -92,9 +102,8 @@ class TaskForIntern(admin.ModelAdmin):
         opts = self.model._meta
         pk_value = obj._get_pk_val()
         preserved_filters = self.get_preserved_filters(request)
-
-        if "_accept" in request.POST:
-            user = request.user
+        user = request.user
+        if '_accept' in request.POST and not self.user_has_accepted_task(obj, user):
             pending_tasks = user.interntask_set
             n_pending_tasks = pending_tasks.count()
             allowed_number_of_pending_tasks = user.profile.allowed_number_of_tasks
@@ -122,26 +131,37 @@ class TaskForIntern(admin.ModelAdmin):
             redirect_url = add_preserved_filters({'preserved_filters': preserved_filters, 'opts': opts}, redirect_url)
             return HttpResponseRedirect(redirect_url)
 
-        elif "_abandon" in request.POST:
-            intern_tasks_of_user = obj.interntask_set.filter(user=request.user)
-            user_has_accepted_task = bool(intern_tasks_of_user.count())
-            if user_has_accepted_task:
-                intern_tasks_of_user.update(status=models.InternTask.ABANDONED)
+        elif '_abandon' in request.POST and self.user_has_accepted_task(obj, user):
+            obj.interntask_set.filter(user=user).update(status=models.InternTask.ABANDONED)
             msg_dict = {'name': force_text(opts.verbose_name), 'obj': force_text(obj)}
-            msg = _('The %(name)s "%(obj)s" was changed successfully.') % msg_dict
+            msg = _('The %(name)s "%(obj)s" was abandoned!') % msg_dict
+            self.message_user(request, msg, messages.WARNING)
+            return self.response_post_save_change(request, obj)
+        elif '_preview' in request.POST and self.user_has_accepted_task(obj, user):
+            redirect_url = request.path + '?preview=true'
+            redirect_url = add_preserved_filters({'preserved_filters': preserved_filters, 'opts': opts}, redirect_url)
+            return HttpResponseRedirect(redirect_url)
+        elif '_submit' in request.POST and self.user_has_accepted_task(obj, user):
+            obj.interntask_set.filter(user=user).update(status=models.InternTask.FINISHED)
+            msg_dict = {'name': force_text(opts.verbose_name), 'obj': force_text(obj)}
+            msg = _('You submitted the %(name)s "%(obj)s"!') % msg_dict
             self.message_user(request, msg, messages.SUCCESS)
             return self.response_post_save_change(request, obj)
         else:
             return super(TaskForIntern, self).response_change(request, obj)
 
+    @staticmethod
+    def user_has_accepted_task(obj, user):
+        intern_tasks_of_user = obj.interntask_set.filter(user=user)
+        return bool(intern_tasks_of_user.count())
+
     def get_fieldsets(self, request, obj=None):
-        # TODO this is a list with always 1 or 0
-        intern_tasks_of_user = obj.interntask_set.filter(user=request.user)
         fieldsets = super(TaskForIntern, self).get_fieldsets(request, obj)
-        user_has_accepted_task = bool(intern_tasks_of_user.count())
-        if user_has_accepted_task and ['expected_results', 'extra_material'] not in fieldsets[0][1]['fields']:
-            fieldsets[0][1]['fields'].append(['expected_results', 'extra_material'])
-            self.inlines = [InternTaskInline]
+        if self.user_has_accepted_task(obj, request.user) :
+            fields_ = fieldsets[0][1]['fields']
+            if 'extra_material' not in fields_ and 'expected_results' not in fields_:
+                fields_.extend(['expected_results', 'extra_material'])
+                self.inlines = [InternTaskInline]
         return fieldsets
 
 
