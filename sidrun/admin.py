@@ -49,11 +49,12 @@ class InternTaskInline(admin.StackedInline):
     def get_readonly_fields(self, request, obj=None):
         intern_tasks_of_user = obj.interntask_set.filter(user=request.user)
         user_has_accepted_task = bool(intern_tasks_of_user.count())
-        interntask_status = intern_tasks_of_user[0].status
-        if user_has_accepted_task and (interntask_status == models.InternTask.ABANDONED
-                                       or interntask_status == models.InternTask.FINISHED
-                                       or request.GET.get('preview')):
-            return self.readonly_fields + ('summary_pitch', 'body', 'conclusion', 'references', 'video')
+        if user_has_accepted_task:
+            interntask_status = intern_tasks_of_user[0].status
+            if (interntask_status == models.InternTask.ABANDONED
+                or interntask_status == models.InternTask.FINISHED
+                or request.GET.get('preview')):
+                return self.readonly_fields + ('summary_pitch', 'body', 'conclusion', 'references', 'video')
         return self.readonly_fields
 
 
