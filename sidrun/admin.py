@@ -9,13 +9,10 @@ from django.contrib.admin.templatetags.admin_modify import submit_row as origina
 from django.contrib import messages
 
 from sidrun import models
+from sidrun.forms import CustomInlineFormSet
 from sidrun.models import AdminTask, Task, Tag, Type, InternTask
 from tasks.forms import AddTypeAndTagsForms
 
-
-
-# or
-# original_submit_row = submit_row
 
 @register.inclusion_tag('admin/submit_line.html', takes_context=True)
 def submit_row(context):
@@ -33,12 +30,22 @@ def submit_row(context):
 
 
 class InternTaskInline(admin.StackedInline):
+    formset = CustomInlineFormSet
     model = InternTask
     fk_name = 'task'
     list_display = ('task_type', 'task_name', 'date_started', 'status', 'feedback')
     fields = ['summary_pitch', 'body', 'conclusion', 'references', 'video']
     extra = 0
     can_delete = True
+
+    def get_formset(self, request, obj=None, **kwargs):
+        modelformset = super(InternTaskInline, self).get_formset(request, obj, **kwargs)
+
+        class ModelFormSetMetaClass(modelformset):
+            def __new__(cls, *args, **kwargs):
+                kwargs['request'] = request
+                return modelformset(*args, **kwargs)
+        return ModelFormSetMetaClass
 
     def get_queryset(self, request):
         return super(InternTaskInline, self).get_queryset(request).filter(user=request.user)
@@ -158,7 +165,7 @@ class TaskForIntern(admin.ModelAdmin):
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(TaskForIntern, self).get_fieldsets(request, obj)
-        if self.user_has_accepted_task(obj, request.user) :
+        if self.user_has_accepted_task(obj, request.user):
             fields_ = fieldsets[0][1]['fields']
             if 'extra_material' not in fields_ and 'expected_results' not in fields_:
                 fields_.extend(['expected_results', 'extra_material'])
