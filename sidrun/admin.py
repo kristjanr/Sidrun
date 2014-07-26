@@ -24,7 +24,8 @@ def submit_row(context):
         'show_abandon': context.get('show_abandon'),
         'show_accept': context.get('show_accept'),
         'show_preview': context.get('show_preview'),
-        'show_submit': context.get('show_submit')
+        'show_submit': context.get('show_submit'),
+        'show_back': context.get('show_back')
     })
     return ctx
 
@@ -88,7 +89,8 @@ class TaskForIntern(admin.ModelAdmin):
                 'show_abandon': user_has_accepted_task,
                 'show_accept': not user_has_accepted_task,
                 'show_preview': user_has_accepted_task and not is_preview,
-                'show_submit': is_preview
+                'show_submit': is_preview,
+                'show_back': is_preview
             }
         else:
             extra_context = {
@@ -98,7 +100,8 @@ class TaskForIntern(admin.ModelAdmin):
                 'show_abandon': False,
                 'show_accept': not user_has_accepted_task,
                 'show_preview': False,
-                'show_submit': False
+                'show_submit': False,
+                'show_back': False
             }
         return super(TaskForIntern, self).change_view(request, object_id,
                                                       form_url, extra_context=extra_context)
