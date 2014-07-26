@@ -1,12 +1,14 @@
 from django.contrib import admin
 from django.contrib.admin.templatetags.admin_urls import add_preserved_filters
 from django.core.urlresolvers import reverse
+from django.db.models import TextField
 from django.http import HttpResponseRedirect
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext as _
 from django.contrib.admin.templatetags.admin_modify import *
 from django.contrib.admin.templatetags.admin_modify import submit_row as original_submit_row
 from django.contrib import messages
+from django_summernote.widgets import SummernoteWidget
 
 from sidrun import models
 from sidrun.forms import CustomInlineFormSet
@@ -38,6 +40,7 @@ class InternTaskInline(admin.StackedInline):
     fields = ['summary_pitch', 'body', 'conclusion', 'references', 'video']
     extra = 0
     can_delete = True
+    formfield_overrides = {TextField: {'widget': SummernoteWidget()}}
 
     def get_formset(self, request, obj=None, **kwargs):
         modelformset = super(InternTaskInline, self).get_formset(request, obj, **kwargs)

@@ -41,6 +41,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'sidrun',
+    'django_summernote',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -85,3 +86,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# more config options: https://github.com/lqez/django-summernote#options
+SUMMERNOTE_CONFIG = {
+
+    # Change editor size
+    'width': '80%',
+    'height': '300',
+
+}
