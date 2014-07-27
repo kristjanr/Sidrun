@@ -204,6 +204,33 @@ class TaskForAdmin(admin.ModelAdmin):
     form = AddTypeAndTagsForms
 
 
+class InternTaskForIntern(admin.ModelAdmin):
+    list_display = ('task_type', 'task_link', 'status', 'date_started')
+    fields = []
+    can_delete = False
+    actions = None
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request):
+        return False
+
+    def task_link(self, obj):
+        opts = self.model._meta
+        url = reverse('admin:%s_%s_change' %
+                                       (opts.app_label, 'task'),
+                                       args=(obj.task.id,),
+                                       current_app=self.admin_site.name)
+        return '<a href="%s">%s</a>' % (url, obj.task.title)
+    task_link.allow_tags = True
+    task_link.short_description = "task_name"
+
+    def __init__(self,*args,**kwargs):
+        super(InternTaskForIntern, self).__init__(*args, **kwargs)
+        self.list_display_links = (None, )
+
+
 class TagAdmin(admin.ModelAdmin):
     list_display = ('name',)
 
@@ -212,6 +239,7 @@ class TypeAdmin(admin.ModelAdmin):
     list_display = ('name',)
 
 
+admin.site.register(InternTask, InternTaskForIntern)
 admin.site.register(AdminTask, TaskForAdmin)
 admin.site.register(Task, TaskForIntern)
 admin.site.register(Tag, TagAdmin)

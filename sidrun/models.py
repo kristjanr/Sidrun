@@ -136,3 +136,5 @@ class InternTask(models.Model):
 
     class Meta:
         unique_together = ('task', 'user',)
+        verbose_name = 'Accepted task'
+        verbose_name_plural = 'Dashboard'
