@@ -93,6 +93,14 @@ class TaskForIntern(admin.ModelAdmin):
                        'start_date', 'finish_date', 'expected_results', 'extra_material')
     fields = ['title', 'type', 'description', 'requirements', 'submission_type', 'start_date',
               'finish_date']
+    can_delete = False
+    actions = None
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request):
+        return False
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         intern_tasks_of_user = request.user.interntask_set.filter(task_id=object_id)
