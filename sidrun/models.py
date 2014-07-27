@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.core.validators import MinLengthValidator, MinValueValidator, URLValidator
 from django.db import models
 from django.db.models.signals import post_save
+from django.utils.safestring import mark_safe
 
 
 class Type(models.Model):
@@ -104,6 +105,28 @@ class InternTask(models.Model):
     # TODO Add more button http://stackoverflow.com/questions/6142025/dynamically-add-field-to-a-form
     references = models.CharField(max_length=100, null=True, blank=True)
     video = models.CharField(max_length=100, null=True, blank=True)
+
+    def summary_pitch_safe(self):
+        return mark_safe(self.summary_pitch)
+    summary_pitch_safe.short_description = "Summary pitch"
+
+    def body_safe(self):
+        return mark_safe(self.body)
+    body_safe.short_description = "Body"
+
+    def conclusion_safe(self):
+        return mark_safe(self.conclusion)
+    conclusion_safe.short_description = "Conclusion"
+
+    def references_url(self):
+        return '<a href="%s">%s</a>' % (self.references, self.references)
+    references_url.allow_tags = True
+    references_url.short_description = "References"
+
+    def video_url(self):
+        return '<a href="%s">%s</a>' % (self.video, self.video)
+    video_url.allow_tags = True
+    video_url.short_description = "Video"
 
     def __unicode__(self):
         return self.user.get_username() + "'s task " + self.task.title

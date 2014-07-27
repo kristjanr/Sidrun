@@ -32,6 +32,16 @@ def submit_row(context):
     return ctx
 
 
+def show_fulfilled_task_as_readonly(obj, request):
+        intern_tasks_of_user = obj.interntask_set.filter(user=request.user)
+        user_has_accepted_task = bool(intern_tasks_of_user.count())
+        if user_has_accepted_task:
+            interntask_status = intern_tasks_of_user[0].status
+            return (interntask_status == models.InternTask.ABANDONED
+                        or interntask_status == models.InternTask.FINISHED
+                        or request.GET.get('preview'))
+
+
 class InternTaskInline(admin.StackedInline):
     formset = CustomInlineFormSet
     model = InternTask
@@ -58,15 +68,19 @@ class InternTaskInline(admin.StackedInline):
         return False
 
     def get_readonly_fields(self, request, obj=None):
-        intern_tasks_of_user = obj.interntask_set.filter(user=request.user)
-        user_has_accepted_task = bool(intern_tasks_of_user.count())
-        if user_has_accepted_task:
-            interntask_status = intern_tasks_of_user[0].status
-            if (interntask_status == models.InternTask.ABANDONED
-                or interntask_status == models.InternTask.FINISHED
-                or request.GET.get('preview')):
-                return self.readonly_fields + ('summary_pitch', 'body', 'conclusion', 'references', 'video')
+        if show_fulfilled_task_as_readonly(obj=obj, request=request):
+            return self.readonly_fields + ('summary_pitch_safe', 'body_safe', 'conclusion_safe', 'references_url', 'video_url',)
         return self.readonly_fields
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super(InternTaskInline, self).get_fieldsets(request, obj)
+        if show_fulfilled_task_as_readonly(obj=obj, request=request):
+            fields_ = fieldsets[0][1]['fields']
+            fields_ = [item for item in fields_ if item not in ['summary_pitch', 'body', 'conclusion', 'references', 'video']]
+            fieldsets[0][1].update({'fields': fields_})
+            fieldsets[0][1]['fields'].extend(['summary_pitch_safe', 'body_safe', 'conclusion_safe', 'references_url', 'video_url'])
+            self.inlines = [InternTaskInline]
+        return fieldsets
 
 
 class TaskForIntern(admin.ModelAdmin):
