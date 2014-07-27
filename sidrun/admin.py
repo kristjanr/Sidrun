@@ -232,7 +232,7 @@ class InternTaskForIntern(admin.ModelAdmin):
                                        current_app=self.admin_site.name)
         return '<a href="%s">%s</a>' % (url, obj.task.title)
     task_link.allow_tags = True
-    task_link.short_description = "task_name"
+    task_link.short_description = "task name"
 
     def __init__(self,*args,**kwargs):
         super(InternTaskForIntern, self).__init__(*args, **kwargs)
