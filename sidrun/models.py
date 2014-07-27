@@ -98,7 +98,6 @@ class InternTask(models.Model):
     )
     status = models.CharField(max_length=2, choices=STATUSES)
     date_started = models.DateTimeField(auto_now_add=True)
-    # TODO RichTextEditor http://stackoverflow.com/questions/329963/replace-textarea-with-rich-text-editor-in-django-admin
     summary_pitch = models.TextField(null=True, blank=True)
     body = models.TextField(null=True, blank=True)
     conclusion = models.TextField( null=True, blank=True)
