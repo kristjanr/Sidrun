@@ -1,14 +1,14 @@
 from django.contrib import admin
 from django.contrib.admin.templatetags.admin_urls import add_preserved_filters
 from django.core.urlresolvers import reverse
-from django.db.models import TextField
+from django.db.models import TextField, CharField
 from django.http import HttpResponseRedirect
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext as _
 from django.contrib.admin.templatetags.admin_modify import *
 from django.contrib.admin.templatetags.admin_modify import submit_row as original_submit_row
 from django.contrib import messages
-from django_summernote.widgets import SummernoteWidget
+from django_summernote.widgets import SummernoteWidget, SummernoteInplaceWidget
 
 from sidrun import models
 from sidrun.forms import CustomInlineFormSet
@@ -33,13 +33,13 @@ def submit_row(context):
 
 
 def show_fulfilled_task_as_readonly(obj, request):
-        intern_tasks_of_user = obj.interntask_set.filter(user=request.user)
-        user_has_accepted_task = bool(intern_tasks_of_user.count())
-        if user_has_accepted_task:
-            interntask_status = intern_tasks_of_user[0].status
-            return (interntask_status == models.InternTask.ABANDONED
-                        or interntask_status == models.InternTask.FINISHED
-                        or request.GET.get('preview'))
+    intern_tasks_of_user = obj.interntask_set.filter(user=request.user)
+    user_has_accepted_task = bool(intern_tasks_of_user.count())
+    if user_has_accepted_task:
+        interntask_status = intern_tasks_of_user[0].status
+        return (interntask_status == models.InternTask.ABANDONED
+                or interntask_status == models.InternTask.FINISHED
+                or request.GET.get('preview'))
 
 
 class InternTaskInline(admin.StackedInline):
@@ -47,7 +47,7 @@ class InternTaskInline(admin.StackedInline):
     model = InternTask
     fk_name = 'task'
     list_display = ('task_type', 'task_name', 'date_started', 'status', 'feedback')
-    fields = ['summary_pitch', 'body', 'conclusion', 'references', 'video']
+    fields = ['summary_pitch', 'body', 'conclusion', 'references', 'videos']
     extra = 0
     can_delete = True
     formfield_overrides = {TextField: {'widget': SummernoteWidget()}}
@@ -59,6 +59,7 @@ class InternTaskInline(admin.StackedInline):
             def __new__(cls, *args, **kwargs):
                 kwargs['request'] = request
                 return modelformset(*args, **kwargs)
+
         return ModelFormSetMetaClass
 
     def get_queryset(self, request):
@@ -69,16 +70,19 @@ class InternTaskInline(admin.StackedInline):
 
     def get_readonly_fields(self, request, obj=None):
         if show_fulfilled_task_as_readonly(obj=obj, request=request):
-            return self.readonly_fields + ('summary_pitch_safe', 'body_safe', 'conclusion_safe', 'references_url', 'video_url',)
+            return self.readonly_fields + (
+                'summary_pitch_safe', 'body_safe', 'conclusion_safe', 'reference_urls', 'video_urls',)
         return self.readonly_fields
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(InternTaskInline, self).get_fieldsets(request, obj)
         if show_fulfilled_task_as_readonly(obj=obj, request=request):
             fields_ = fieldsets[0][1]['fields']
-            fields_ = [item for item in fields_ if item not in ['summary_pitch', 'body', 'conclusion', 'references', 'video']]
+            fields_ = [item for item in fields_ if
+                       item not in ['summary_pitch', 'body', 'conclusion', 'references', 'videos']]
             fieldsets[0][1].update({'fields': fields_})
-            fieldsets[0][1]['fields'].extend(['summary_pitch_safe', 'body_safe', 'conclusion_safe', 'references_url', 'video_url'])
+            fieldsets[0][1]['fields'].extend(
+                ['summary_pitch_safe', 'body_safe', 'conclusion_safe', 'reference_urls', 'video_urls'])
             self.inlines = [InternTaskInline]
         return fieldsets
 

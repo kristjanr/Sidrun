@@ -46,9 +46,13 @@ class CustomInlineFormSet(BaseInlineFormSet):
                     validation_errors.append(ValidationError("Conclusion length needs to be at least %d characters. You have %d." % (min_conclusion_length,
                                                                                                                                      conclusion_length)))
                 references = form.cleaned_data['references']
-                if not self.regex.search(force_text(references)):
-                    validation_errors.append(ValidationError("Reference needs to be a valid URL address."))
-                video = form.cleaned_data['video']
-                if not self.regex.search(force_text(video)):
-                    validation_errors.append(ValidationError("Video needs to be a valid URL address."))
+                references_prepared_for_validation = re.findall(r'href=[\'"]?([^\'" >]+)', references)
+                for reference in references_prepared_for_validation:
+                    if not self.regex.search(force_text(reference)):
+                        validation_errors.append(ValidationError("References need to be valid URL addresses."))
+                videos = form.cleaned_data['videos']
+                video_urls_prepared_for_validation = re.findall(r'href=[\'"]?([^\'" >]+)', videos)
+                for video in video_urls_prepared_for_validation:
+                    if not self.regex.search(force_text(video)):
+                        validation_errors.append(ValidationError("Videos need to be valid URL addresses."))
                 raise ValidationError(validation_errors)

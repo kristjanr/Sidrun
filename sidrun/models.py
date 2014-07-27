@@ -101,10 +101,9 @@ class InternTask(models.Model):
     date_started = models.DateTimeField(auto_now_add=True)
     summary_pitch = models.TextField(null=True, blank=True)
     body = models.TextField(null=True, blank=True)
-    conclusion = models.TextField( null=True, blank=True)
-    # TODO Add more button http://stackoverflow.com/questions/6142025/dynamically-add-field-to-a-form
-    references = models.CharField(max_length=100, null=True, blank=True)
-    video = models.CharField(max_length=100, null=True, blank=True)
+    conclusion = models.TextField(null=True, blank=True)
+    references = models.TextField(null=True, blank=True)
+    videos = models.TextField(null=True, blank=True)
 
     def summary_pitch_safe(self):
         return mark_safe(self.summary_pitch)
@@ -118,15 +117,13 @@ class InternTask(models.Model):
         return mark_safe(self.conclusion)
     conclusion_safe.short_description = "Conclusion"
 
-    def references_url(self):
-        return '<a href="%s">%s</a>' % (self.references, self.references)
-    references_url.allow_tags = True
-    references_url.short_description = "References"
+    def reference_urls(self):
+        return mark_safe(self.references)
+    reference_urls.short_description = "References"
 
-    def video_url(self):
-        return '<a href="%s">%s</a>' % (self.video, self.video)
-    video_url.allow_tags = True
-    video_url.short_description = "Video"
+    def video_urls(self):
+        return mark_safe(self.videos)
+    video_urls.short_description = "Videos"
 
     def __unicode__(self):
         return self.user.get_username() + "'s task " + self.task.title

@@ -10,6 +10,7 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 MEDIA_ROOT = BASE_DIR + "/uploaded_files/"
@@ -91,7 +92,12 @@ STATIC_URL = '/static/'
 SUMMERNOTE_CONFIG = {
 
     # Change editor size
-    'width': '80%',
+    'width': '90%',
     'height': '300',
+    'toolbar': [["style", ["style"]],
+              ["font", ["bold", "italic", "underline", "superscript", "subscript", "strikethrough", "clear"]],
+              ["fontname", ["fontname"]], ["color", ["color"]], ["para", ["ul", "ol", "paragraph"]],
+              ["height", ["height"]], ["table", ["table"]], ["insert", ["link", "video", "hr"]],
+              ["view", ["fullscreen", "codeview"]], ["help", ["help"]]]
 
 }
