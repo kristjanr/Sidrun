@@ -67,7 +67,7 @@ class CustomInlineFormSet(BaseInlineFormSet):
         return '_preview' in self.request.POST
 
     def clean(self):
-        super(CustomInlineFormSet, self).clean()
+        inline_formset_data = super(CustomInlineFormSet, self).clean()
         if self.need_to_validate():
             for form in self.forms:
                 data = form.clean()
@@ -105,3 +105,4 @@ class CustomInlineFormSet(BaseInlineFormSet):
                     if not self.regex.search(force_text(video)):
                         validation_errors.append(ValidationError("Videos need to be valid URL addresses."))
                 raise ValidationError(validation_errors)
+        return inline_formset_data
