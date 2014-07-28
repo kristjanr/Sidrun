@@ -90,9 +90,9 @@ class InternTaskInline(admin.StackedInline):
 class TaskForIntern(admin.ModelAdmin):
     list_display = ('title', 'type', 'type_icon', 'number_of_current_positions', 'publish_date', 'unpublish_date', 'time_to_complete_task')
     readonly_fields = ('title', 'tags_list', 'type', 'type_icon', 'description', 'requirements', 'submission_type',
-                       'publish_date', 'unpublish_date', 'time_to_complete_task', 'expected_results', 'extra_material')
+                       'publish_date', 'unpublish_date', 'time_to_complete_task', 'expected_results', 'extra_material', 'time_left',)
     fields = ['title', 'type', 'description', 'requirements', 'submission_type', 'publish_date',
-              'unpublish_date']
+              'unpublish_date', 'time_left']
     can_delete = False
     actions = None
 
@@ -214,7 +214,8 @@ class TaskForAdmin(admin.ModelAdmin):
 
 
 class InternTaskForIntern(admin.ModelAdmin):
-    list_display = ('task_type', 'task_link', 'status', 'date_started')
+    list_display = ('task_type', 'task_link', 'status', 'date_started', 'time_left')
+    readonly_fields = ('time_left',)
     fields = []
     can_delete = False
     actions = None

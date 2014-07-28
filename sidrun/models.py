@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.core.validators import MinLengthValidator, MinValueValidator, URLValidator
 from django.db import models
 from django.db.models.signals import post_save
+from django.utils import timezone
 from django.utils.safestring import mark_safe
 
 
@@ -39,7 +40,7 @@ class Task(models.Model):
                                        choices=SUBMISSION_TYPE)
 
     time_to_complete_task = models.IntegerField(validators=[MinValueValidator(1)],
-                                              help_text='Maximum hours given to complete the task.')
+                                                help_text='Maximum hours given to complete the task.')
     publish_date = models.DateTimeField()
     unpublish_date = models.DateTimeField()
     number_of_positions = models.IntegerField(validators=[MinValueValidator(1)],
@@ -50,6 +51,9 @@ class Task(models.Model):
 
     def number_of_current_positions(self):
         return self.number_of_positions - self.interntask_set.exclude(status=InternTask.ABANDONED).__len__()
+
+    def time_left(self):
+        return self.interntask_set.first().time_left()
 
     def __unicode__(self):
         return self.title
@@ -84,6 +88,7 @@ def create_user_profile(sender, instance, created, **kwargs):
     if created:
         profile, created = Profile.objects.get_or_create(user=instance)
 
+
 post_save.connect(create_user_profile, sender=User)
 
 
@@ -110,22 +115,27 @@ class InternTask(models.Model):
 
     def summary_pitch_safe(self):
         return mark_safe(self.summary_pitch)
+
     summary_pitch_safe.short_description = "Summary pitch"
 
     def body_safe(self):
         return mark_safe(self.body)
+
     body_safe.short_description = "Body"
 
     def conclusion_safe(self):
         return mark_safe(self.conclusion)
+
     conclusion_safe.short_description = "Conclusion"
 
     def reference_urls(self):
         return mark_safe(self.references)
+
     reference_urls.short_description = "References"
 
     def video_urls(self):
         return mark_safe(self.videos)
+
     video_urls.short_description = "Videos"
 
     def __unicode__(self):
@@ -136,6 +146,12 @@ class InternTask(models.Model):
 
     def task_name(self):
         return self.task.title
+
+    def time_left(self):
+        s = (timezone.now() - self.date_started).total_seconds()
+        hours, remainder = divmod(s, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        return '%d:%d:%d' % (int(hours), int(minutes), int(seconds))
 
     class Meta:
         unique_together = ('task', 'user',)
