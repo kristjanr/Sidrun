@@ -1,177 +1,232 @@
 [
     {
         "pk": 1,
+        "model": "sidrun.type",
         "fields": {
             "name": "Case",
             "icon": "type_icons/icon.png"
-        },
-        "model": "sidrun.type"
+        }
     },
     {
         "pk": 2,
+        "model": "sidrun.type",
         "fields": {
             "name": "Report",
-            "icon": ""
-        },
-        "model": "sidrun.type"
+            "icon": "type_icons/report.jpeg"
+        }
     },
     {
         "pk": 3,
+        "model": "sidrun.type",
         "fields": {
             "name": "Creative",
-            "icon": ""
-        },
-        "model": "sidrun.type"
+            "icon": "type_icons/creative.jpeg"
+        }
     },
     {
         "pk": 4,
+        "model": "sidrun.type",
         "fields": {
             "name": "General",
-            "icon": ""
-        },
-        "model": "sidrun.type"
+            "icon": "type_icons/general.jpeg"
+        }
     },
     {
         "pk": 5,
+        "model": "sidrun.type",
         "fields": {
             "name": "Other",
-            "icon": ""
-        },
-        "model": "sidrun.type"
+            "icon": "type_icons/other.jpeg"
+        }
     },
     {
         "pk": 1,
+        "model": "sidrun.tag",
         "fields": {
             "name": "Websites IT & Software"
-        },
-        "model": "sidrun.tag"
+        }
     },
     {
         "pk": 2,
+        "model": "sidrun.tag",
         "fields": {
             "name": "Writing"
-        },
-        "model": "sidrun.tag"
+        }
     },
     {
         "pk": 3,
+        "model": "sidrun.tag",
         "fields": {
             "name": "Design"
-        },
-        "model": "sidrun.tag"
+        }
     },
     {
         "pk": 4,
+        "model": "sidrun.tag",
         "fields": {
             "name": "Data entry"
-        },
-        "model": "sidrun.tag"
+        }
     },
     {
         "pk": 5,
+        "model": "sidrun.tag",
         "fields": {
             "name": "Mobile"
-        },
-        "model": "sidrun.tag"
+        }
     },
     {
         "pk": 6,
+        "model": "sidrun.tag",
         "fields": {
             "name": "Product manufacturing"
-        },
-        "model": "sidrun.tag"
+        }
     },
     {
         "pk": 7,
+        "model": "sidrun.tag",
         "fields": {
             "name": "Sales"
-        },
-        "model": "sidrun.tag"
+        }
     },
     {
         "pk": 8,
+        "model": "sidrun.tag",
         "fields": {
             "name": "Marketing"
-        },
-        "model": "sidrun.tag"
+        }
     },
     {
         "pk": 9,
+        "model": "sidrun.tag",
         "fields": {
             "name": "Business"
-        },
-        "model": "sidrun.tag"
+        }
     },
     {
         "pk": 10,
+        "model": "sidrun.tag",
         "fields": {
             "name": "Accounting"
-        },
-        "model": "sidrun.tag"
+        }
     },
     {
         "pk": 11,
+        "model": "sidrun.tag",
         "fields": {
             "name": "Legal"
-        },
-        "model": "sidrun.tag"
+        }
     },
     {
         "pk": 12,
+        "model": "sidrun.tag",
         "fields": {
             "name": "Other"
-        },
-        "model": "sidrun.tag"
+        }
     },
     {
         "pk": 13,
+        "model": "sidrun.tag",
         "fields": {
             "name": "General"
-        },
-        "model": "sidrun.tag"
+        }
     },
     {
         "pk": 1,
+        "model": "sidrun.task",
         "fields": {
-            "extra_material": null,
-            "start_date": "2014-06-29",
-            "submission_type": "TX",
-            "expected_results": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque hendrerit eros nec aliquam imperdiet. Maecenas facilisis odio posuere.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque hendrerit eros nec aliquam imperdiet. Maecenas facilisis odio posuere.",
-            "number_of_current_positions": 1,
-            "application_deadline": "2014-06-29",
-            "tags": [1, 12],
+            "time_to_complete_task": 1,
+            "requirements": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.",
+            "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.",
             "title": "foo bar",
-            "number_of_positions": 1,
-            "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque hendrerit eros nec aliquam imperdiet. Maecenas facilisis odio posuere.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque hendrerit eros nec aliquam imperdiet. Maecenas facilisis odio posuere.",
-            "requirements": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque hendrerit eros nec aliquam imperdiet. Maecenas facilisis odio posuere.",
-            "finish_date": "2014-06-29",
-            "type": 1
-        },
-        "model": "sidrun.task"
-    },
-    {
-        "pk": 1,
-        "fields": {
-            "allowed_number_of_tasks": 1,
-            "user": 1
-        },
-        "model": "sidrun.profile"
+            "type": 1,
+            "tags": [1, 7, 8],
+            "unpublish_date": "2014-07-29T21:36:47Z",
+            "publish_date": "2014-07-28T21:36:45Z",
+            "extra_material": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.",
+            "number_of_positions": 5,
+            "submission_type": "TX",
+            "expected_results": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed."
+        }
     },
     {
         "pk": 2,
+        "model": "sidrun.task",
+        "fields": {
+            "time_to_complete_task": 24,
+            "requirements": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.",
+            "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.",
+            "title": "second task!!",
+            "type": 3,
+            "tags": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+            "unpublish_date": "2014-07-29T21:39:16Z",
+            "publish_date": "2014-07-28T21:39:15Z",
+            "extra_material": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.",
+            "number_of_positions": 4,
+            "submission_type": "BO",
+            "expected_results": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed."
+        }
+    },
+    {
+        "pk": 1,
+        "model": "sidrun.profile",
+        "fields": {
+            "allowed_number_of_tasks": 1,
+            "user": 1
+        }
+    },
+    {
+        "pk": 2,
+        "model": "sidrun.profile",
         "fields": {
             "allowed_number_of_tasks": 1,
             "user": 2
-        },
-        "model": "sidrun.profile"
+        }
     },
     {
         "pk": 3,
+        "model": "sidrun.profile",
         "fields": {
             "allowed_number_of_tasks": 1,
             "user": 3
-        },
-        "model": "sidrun.profile"
+        }
+    },
+    {
+        "pk": 4,
+        "model": "sidrun.profile",
+        "fields": {
+            "allowed_number_of_tasks": 1,
+            "user": 4
+        }
+    },
+    {
+        "pk": 1,
+        "model": "sidrun.interntask",
+        "fields": {
+            "status": "FI",
+            "body": "<p>\r\n                        \r\n                            </p><p>Lorem ipsum dolor sit amet, consectetur \r\nadipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id\r\n neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur \r\nadipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id\r\n neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur \r\nadipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id\r\n neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur \r\nadipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id\r\n neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur \r\nadipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id\r\n neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur \r\nadipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id\r\n neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur \r\nadipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id\r\n neque aliquam, pretium sed.</p>",
+            "task": 2,
+            "videos": "<p>\r\n                        \r\n                            </p><p>Lorem ipsum dolor sit amet, consectetur \r\nadipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id\r\n neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur \r\nadipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id\r\n neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur \r\nadipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id\r\n neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur \r\nadipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id\r\n neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur \r\nadipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id\r\n neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur \r\nadipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id\r\n neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur \r\nadipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id\r\n neque aliquam,<a target=\"_blank\" href=\"http://127.0.0.1:8000/admin/sidrun/task/2/\"> pretium sed.</a></p>",
+            "references": "<p>\r\n                        \r\n                            </p><p>Lorem ipsum dolor sit amet, consectetur \r\nadipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id\r\n neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur \r\nadipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id\r\n neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur \r\nadipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id\r\n neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur \r\nadipiscing elit. Curabitur <a target=\"_blank\" href=\"http://127.0.0.1:8000/admin/sidrun/task/2/\">nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id </a>neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur \r\nadipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id\r\n neque aliquam</p>",
+            "user": 4,
+            "summary_pitch": "<p>\r\n                        \r\n                            </p><p>Lorem ipsum dolor sit amet, consectetur \r\nadipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id\r\n neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur \r\nadipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id\r\n neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur \r\nadipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id\r\n neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur \r\nadipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id\r\n neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur \r\nadipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id\r\n neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur \r\nadipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id\r\n neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur \r\nadipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id\r\n neque aliquam, pretium sed.</p>",
+            "date_started": "2014-07-28T21:46:46.319Z",
+            "conclusion": "<p>\r\n                        \r\n                            </p><p>Lorem ipsum dolor sit amet, consectetur \r\nadipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id\r\n neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur \r\nadipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id\r\n neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur \r\nadipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id\r\n neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur \r\nadipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id\r\n neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur \r\nadipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id\r\n neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur \r\nadipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id\r\n neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur \r\nadipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id\r\n neque aliquam, pretium sed.</p>"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "sidrun.interntask",
+        "fields": {
+            "status": "AB",
+            "body": null,
+            "task": 1,
+            "videos": null,
+            "references": null,
+            "user": 4,
+            "summary_pitch": null,
+            "date_started": "2014-07-28T22:09:55.306Z",
+            "conclusion": null
+        }
     },
     {
         "pk": 1,
@@ -190,58 +245,76 @@
         }
     },
     {
+        "pk": 1,
         "model": "auth.user",
         "fields": {
-            "email": "k@r.ee",
-            "groups": [],
-            "first_name": "",
-            "last_login": "2014-07-06T21:44:54.236Z",
-            "password": "pbkdf2_sha256$12000$td0CEXKT4LIX$AZGicGUl+uC8MYF8VO/GQFlJemkSG0UU65+h/PKn30Q=",
-            "user_permissions": [],
-            "is_active": true,
-            "last_name": "",
-            "is_staff": true,
             "username": "kristjan",
-            "date_joined": "2014-06-29T20:41:46.886Z",
-            "is_superuser": true
-        },
-        "pk": 1
+            "first_name": "",
+            "last_name": "",
+            "is_active": true,
+            "is_superuser": true,
+            "is_staff": true,
+            "last_login": "2014-07-28T21:36:24.361Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "pbkdf2_sha256$12000$td0CEXKT4LIX$AZGicGUl+uC8MYF8VO/GQFlJemkSG0UU65+h/PKn30Q=",
+            "email": "k@r.ee",
+            "date_joined": "2014-06-29T20:41:46.886Z"
+        }
     },
     {
+        "pk": 2,
+        "model": "auth.user",
         "fields": {
-            "user_permissions": [],
-            "groups": [2],
             "username": "mikk",
-            "date_joined": "2014-07-12T18:27:58Z",
-            "is_active": true,
-            "is_superuser": false,
-            "last_login": "2014-07-12T18:28:32.965Z",
-            "is_staff": true,
             "first_name": "",
             "last_name": "",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": true,
+            "last_login": "2014-07-12T18:28:32.965Z",
+            "groups": [2],
+            "user_permissions": [],
+            "password": "pbkdf2_sha256$12000$wICKEsgWr7c0$LGb0kZk73OgTl7ybNjDmZ4SA+SOisk/vDUMQlh0Zoqc=",
             "email": "",
-            "password": "pbkdf2_sha256$12000$wICKEsgWr7c0$LGb0kZk73OgTl7ybNjDmZ4SA+SOisk/vDUMQlh0Zoqc="
-        },
-        "model": "auth.user",
-        "pk": 2
+            "date_joined": "2014-07-12T18:27:58Z"
+        }
     },
     {
+        "pk": 3,
+        "model": "auth.user",
         "fields": {
-            "user_permissions": [],
-            "groups": [1],
             "username": "intern",
-            "date_joined": "2014-07-12T18:28:12Z",
-            "is_active": true,
-            "is_superuser": false,
-            "last_login": "2014-07-12T18:28:52.839Z",
-            "is_staff": true,
             "first_name": "",
             "last_name": "",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": true,
+            "last_login": "2014-07-28T21:40:17.687Z",
+            "groups": [1],
+            "user_permissions": [],
+            "password": "pbkdf2_sha256$12000$mKaOLQFCpo0n$54LVJ6NDzk3IhplEmtZmbKtjYz+tVizmskroVHxtd/Y=",
             "email": "",
-            "password": "pbkdf2_sha256$12000$mKaOLQFCpo0n$54LVJ6NDzk3IhplEmtZmbKtjYz+tVizmskroVHxtd/Y="
-        },
+            "date_joined": "2014-07-12T18:28:12Z"
+        }
+    },
+    {
+        "pk": 4,
         "model": "auth.user",
-        "pk": 3
+        "fields": {
+            "username": "intern2",
+            "first_name": "",
+            "last_name": "",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": true,
+            "last_login": "2014-07-28T21:46:42.111Z",
+            "groups": [1],
+            "user_permissions": [],
+            "password": "pbkdf2_sha256$12000$rwymvLa2B71H$yij63HSXwPoPKLsbjCJVNcn59NZ2MCjzI0YEzKEQ+pk=",
+            "email": "",
+            "date_joined": "2014-07-28T21:40:03Z"
+        }
     }
 ]
 

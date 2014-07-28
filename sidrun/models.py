@@ -38,15 +38,18 @@ class Task(models.Model):
     submission_type = models.CharField(max_length=2,
                                        choices=SUBMISSION_TYPE)
 
-    application_deadline = models.DateField()
-    start_date = models.DateField()
-    finish_date = models.DateField()
+    time_to_complete_task = models.IntegerField(validators=[MinValueValidator(1)],
+                                              help_text='Maximum hours given to complete the task.')
+    publish_date = models.DateTimeField()
+    unpublish_date = models.DateTimeField()
     number_of_positions = models.IntegerField(validators=[MinValueValidator(1)],
                                               help_text='The number of positions available.')
-    number_of_current_positions = models.IntegerField(help_text='The number of current positions available.')
     expected_results = models.TextField(max_length=1000, validators=[MinLengthValidator(280)])
 
     extra_material = models.TextField(null=True)
+
+    def number_of_current_positions(self):
+        return self.number_of_positions - self.interntask_set.exclude(status=InternTask.ABANDONED).__len__()
 
     def __unicode__(self):
         return self.title

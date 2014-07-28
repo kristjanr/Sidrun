@@ -1,19 +1,19 @@
 from django.contrib import admin
 from django.contrib.admin.templatetags.admin_urls import add_preserved_filters
 from django.core.urlresolvers import reverse
-from django.db.models import TextField, CharField
+from django.db.models import TextField, Q
 from django.http import HttpResponseRedirect
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext as _
 from django.contrib.admin.templatetags.admin_modify import *
 from django.contrib.admin.templatetags.admin_modify import submit_row as original_submit_row
 from django.contrib import messages
-from django_summernote.widgets import SummernoteWidget, SummernoteInplaceWidget
+from django_summernote.widgets import SummernoteWidget
 
 from sidrun import models
-from sidrun.forms import CustomInlineFormSet
+from sidrun.forms import CustomInlineFormSet, AddTaskForm
 from sidrun.models import AdminTask, Task, Tag, Type, InternTask
-from tasks.forms import AddTypeAndTagsForms
+
 
 
 @register.inclusion_tag('admin/submit_line.html', takes_context=True)
@@ -88,11 +88,11 @@ class InternTaskInline(admin.StackedInline):
 
 
 class TaskForIntern(admin.ModelAdmin):
-    list_display = ('title', 'type', 'type_icon', 'number_of_current_positions', 'start_date')
+    list_display = ('title', 'type', 'type_icon', 'number_of_current_positions', 'publish_date', 'unpublish_date', 'time_to_complete_task')
     readonly_fields = ('title', 'tags_list', 'type', 'type_icon', 'description', 'requirements', 'submission_type',
-                       'start_date', 'finish_date', 'expected_results', 'extra_material')
-    fields = ['title', 'type', 'description', 'requirements', 'submission_type', 'start_date',
-              'finish_date']
+                       'publish_date', 'unpublish_date', 'time_to_complete_task', 'expected_results', 'extra_material')
+    fields = ['title', 'type', 'description', 'requirements', 'submission_type', 'publish_date',
+              'unpublish_date']
     can_delete = False
     actions = None
 
@@ -145,12 +145,12 @@ class TaskForIntern(admin.ModelAdmin):
         user = request.user
         if '_accept' in request.POST and not self.user_has_accepted_task(obj, user):
             pending_tasks = user.interntask_set
-            n_pending_tasks = pending_tasks.count()
+            n_pending_tasks = pending_tasks.filter(Q(status=InternTask.UNFINISHED) | Q(status=InternTask.UNSUBMITTED)).count()
             allowed_number_of_pending_tasks = user.profile.allowed_number_of_tasks
             msg = ''
             if allowed_number_of_pending_tasks <= n_pending_tasks:
                 msg = _('You are allowed to have %d pending tasks. You already have %d pending tasks! ' % (
-                    allowed_number_of_pending_tasks, pending_tasks.count()))
+                    allowed_number_of_pending_tasks, n_pending_tasks))
             if pending_tasks.filter(task=obj):
                 msg += _('You already have this task!')
             if allowed_number_of_pending_tasks > n_pending_tasks and not pending_tasks.filter(task=obj):
@@ -158,7 +158,7 @@ class TaskForIntern(admin.ModelAdmin):
                 new_intern_task_pk = new_intern_task._get_pk_val()
                 msg = _(
                     'Task %s was assigned to you. You now have %d pending task(s).' % (
-                        obj.title, pending_tasks.count()))
+                        obj.title, n_pending_tasks))
                 redirect_url = reverse('admin:%s_%s_change' %
                                        (opts.app_label, 'task'),
                                        args=(pk_value,),
@@ -207,9 +207,10 @@ class TaskForIntern(admin.ModelAdmin):
 
 class TaskForAdmin(admin.ModelAdmin):
     list_display = (
-        'title', 'type', 'tags_list', 'submission_type', 'application_deadline', 'start_date', 'finish_date',
+        'title', 'type', 'tags_list', 'submission_type', 'time_to_complete_task', 'publish_date', 'unpublish_date',
         'number_of_positions',)
-    form = AddTypeAndTagsForms
+    exclude = []
+    form = AddTaskForm
 
 
 class InternTaskForIntern(admin.ModelAdmin):
