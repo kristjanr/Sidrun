@@ -239,6 +239,9 @@ class InternTaskForIntern(admin.ModelAdmin):
         super(InternTaskForIntern, self).__init__(*args, **kwargs)
         self.list_display_links = (None, )
 
+    def get_queryset(self, request):
+        return super(InternTaskForIntern, self).get_queryset(request).filter(user=request.user)
+
 
 class TagAdmin(admin.ModelAdmin):
     list_display = ('name',)
