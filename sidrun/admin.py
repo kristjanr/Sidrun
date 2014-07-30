@@ -11,9 +11,8 @@ from django.contrib import messages
 from django_summernote.widgets import SummernoteWidget
 
 from sidrun import models
-from sidrun.forms import CustomInlineFormSet, AddTaskForm
+from sidrun.forms import CustomForm, AddTaskForm
 from sidrun.models import AdminTask, Task, Tag, Type, InternTask
-
 
 
 @register.inclusion_tag('admin/submit_line.html', takes_context=True)
@@ -32,67 +31,18 @@ def submit_row(context):
     return ctx
 
 
-def show_fulfilled_task_as_readonly(obj, request):
-    intern_tasks_of_user = obj.interntask_set.filter(user=request.user)
-    user_has_accepted_task = bool(intern_tasks_of_user.count())
-    if user_has_accepted_task:
-        interntask_status = intern_tasks_of_user[0].status
-        return (interntask_status == models.InternTask.ABANDONED
-                or interntask_status == models.InternTask.FINISHED
-                or request.GET.get('preview'))
+def show_as_readonly(obj, request):
+    return (obj.status == models.InternTask.ABANDONED
+            or obj.status == models.InternTask.FINISHED
+            or request.GET.get('preview'))
 
 
-class InternTaskInline(admin.StackedInline):
-    formset = CustomInlineFormSet
-    model = InternTask
-    fk_name = 'task'
-    list_display = ('task_type', 'task_name', 'date_started', 'status', 'feedback')
-    fields = ['summary_pitch', 'body', 'conclusion', 'references', 'videos']
-    extra = 0
-    can_delete = True
-    formfield_overrides = {TextField: {'widget': SummernoteWidget()}}
-
-    def get_formset(self, request, obj=None, **kwargs):
-        modelformset = super(InternTaskInline, self).get_formset(request, obj, **kwargs)
-
-        class ModelFormSetMetaClass(modelformset):
-            def __new__(cls, *args, **kwargs):
-                kwargs['request'] = request
-                return modelformset(*args, **kwargs)
-
-        return ModelFormSetMetaClass
-
-    def get_queryset(self, request):
-        return super(InternTaskInline, self).get_queryset(request).filter(user=request.user)
-
-    def has_add_permission(self, request):
-        return False
-
-    def get_readonly_fields(self, request, obj=None):
-        if show_fulfilled_task_as_readonly(obj=obj, request=request):
-            return self.readonly_fields + (
-                'summary_pitch_safe', 'body_safe', 'conclusion_safe', 'reference_urls', 'video_urls',)
-        return self.readonly_fields
-
-    def get_fieldsets(self, request, obj=None):
-        fieldsets = super(InternTaskInline, self).get_fieldsets(request, obj)
-        if show_fulfilled_task_as_readonly(obj=obj, request=request):
-            fields_ = fieldsets[0][1]['fields']
-            fields_ = [item for item in fields_ if
-                       item not in ['summary_pitch', 'body', 'conclusion', 'references', 'videos']]
-            fieldsets[0][1].update({'fields': fields_})
-            fieldsets[0][1]['fields'].extend(
-                ['summary_pitch_safe', 'body_safe', 'conclusion_safe', 'reference_urls', 'video_urls'])
-            self.inlines = [InternTaskInline]
-        return fieldsets
-
-
-class TaskForIntern(admin.ModelAdmin):
-    list_display = ('title', 'type', 'type_icon', 'number_of_current_positions', 'publish_date', 'unpublish_date', 'time_to_complete_task')
+class ViewNewTasks(admin.ModelAdmin):
+    list_display = ('title', 'type', 'type_icon', 'number_of_current_positions', 'publish_date', 'unpublish_date',
+                    'time_to_complete_task')
     readonly_fields = ('title', 'tags_list', 'type', 'type_icon', 'description', 'requirements', 'submission_type',
-                       'publish_date', 'unpublish_date', 'time_to_complete_task', 'expected_results', 'extra_material', 'time_left',)
-    fields = ['title', 'type', 'description', 'requirements', 'submission_type', 'publish_date',
-              'unpublish_date', 'time_left']
+                       'publish_date', 'unpublish_date', 'time_to_complete_task',)
+    fields = ['title', 'type', 'description', 'requirements', 'submission_type', 'time_to_complete_task']
     can_delete = False
     actions = None
 
@@ -102,26 +52,14 @@ class TaskForIntern(admin.ModelAdmin):
     def has_add_permission(self, request):
         return False
 
+    def get_queryset(self, request):
+        queryset = super(ViewNewTasks, self).get_queryset(request)
+        return queryset.exclude(interntask__user=request.user)
+
     def change_view(self, request, object_id, form_url='', extra_context=None):
         intern_tasks_of_user = request.user.interntask_set.filter(task_id=object_id)
         user_has_accepted_task = bool(intern_tasks_of_user.count())
-        if user_has_accepted_task:
-            interntask_status = intern_tasks_of_user[0].status
-        else:
-            interntask_status = None
-        if interntask_status and interntask_status == models.InternTask.UNFINISHED or interntask_status == models.InternTask.UNSUBMITTED:
-            is_preview = bool(request.GET.get('preview'))
-            extra_context = {
-                'show_save_and_add_another': False,
-                'show_save': False,
-                'show_save_and_continue': user_has_accepted_task and not is_preview,
-                'show_abandon': user_has_accepted_task,
-                'show_accept': not user_has_accepted_task,
-                'show_preview': user_has_accepted_task and not is_preview,
-                'show_submit': is_preview,
-                'show_back': is_preview
-            }
-        else:
+        if not user_has_accepted_task:
             extra_context = {
                 'show_save_and_add_another': False,
                 'show_save_and_continue': False,
@@ -132,8 +70,8 @@ class TaskForIntern(admin.ModelAdmin):
                 'show_submit': False,
                 'show_back': False
             }
-        return super(TaskForIntern, self).change_view(request, object_id,
-                                                      form_url, extra_context=extra_context)
+        return super(ViewNewTasks, self).change_view(request, object_id,
+                                                     form_url, extra_context=extra_context)
 
     def response_change(self, request, obj):
         """
@@ -145,7 +83,8 @@ class TaskForIntern(admin.ModelAdmin):
         user = request.user
         if '_accept' in request.POST and not self.user_has_accepted_task(obj, user):
             pending_tasks = user.interntask_set
-            n_pending_tasks = pending_tasks.filter(Q(status=InternTask.UNFINISHED) | Q(status=InternTask.UNSUBMITTED)).count()
+            n_pending_tasks = pending_tasks.filter(
+                Q(status=InternTask.UNFINISHED) | Q(status=InternTask.UNSUBMITTED)).count()
             allowed_number_of_pending_tasks = user.profile.allowed_number_of_tasks
             msg = ''
             if allowed_number_of_pending_tasks <= n_pending_tasks:
@@ -160,8 +99,8 @@ class TaskForIntern(admin.ModelAdmin):
                     'Task %s was assigned to you. You now have %d pending task(s).' % (
                         obj.title, n_pending_tasks))
                 redirect_url = reverse('admin:%s_%s_change' %
-                                       (opts.app_label, 'task'),
-                                       args=(pk_value,),
+                                       (opts.app_label, 'interntask'),
+                                       args=(new_intern_task_pk,),
                                        current_app=self.admin_site.name)
                 self.message_user(request, msg, messages.SUCCESS)
 
@@ -170,39 +109,13 @@ class TaskForIntern(admin.ModelAdmin):
                 redirect_url = request.path
             redirect_url = add_preserved_filters({'preserved_filters': preserved_filters, 'opts': opts}, redirect_url)
             return HttpResponseRedirect(redirect_url)
-
-        elif '_abandon' in request.POST and self.user_has_accepted_task(obj, user):
-            obj.interntask_set.filter(user=user).update(status=models.InternTask.ABANDONED)
-            msg_dict = {'name': force_text(opts.verbose_name), 'obj': force_text(obj)}
-            msg = _('The %(name)s "%(obj)s" was abandoned!') % msg_dict
-            self.message_user(request, msg, messages.WARNING)
-            return self.response_post_save_change(request, obj)
-        elif '_preview' in request.POST and self.user_has_accepted_task(obj, user):
-            redirect_url = request.path + '?preview=true'
-            redirect_url = add_preserved_filters({'preserved_filters': preserved_filters, 'opts': opts}, redirect_url)
-            return HttpResponseRedirect(redirect_url)
-        elif '_submit' in request.POST and self.user_has_accepted_task(obj, user):
-            obj.interntask_set.filter(user=user).update(status=models.InternTask.FINISHED)
-            msg_dict = {'name': force_text(opts.verbose_name), 'obj': force_text(obj)}
-            msg = _('You submitted the %(name)s "%(obj)s"!') % msg_dict
-            self.message_user(request, msg, messages.SUCCESS)
-            return self.response_post_save_change(request, obj)
         else:
-            return super(TaskForIntern, self).response_change(request, obj)
+            return super(ViewNewTasks, self).response_change(request, obj)
 
     @staticmethod
     def user_has_accepted_task(obj, user):
         intern_tasks_of_user = obj.interntask_set.filter(user=user)
         return bool(intern_tasks_of_user.count())
-
-    def get_fieldsets(self, request, obj=None):
-        fieldsets = super(TaskForIntern, self).get_fieldsets(request, obj)
-        if self.user_has_accepted_task(obj, request.user):
-            fields_ = fieldsets[0][1]['fields']
-            if 'extra_material' not in fields_ and 'expected_results' not in fields_:
-                fields_.extend(['expected_results', 'extra_material'])
-                self.inlines = [InternTaskInline]
-        return fieldsets
 
 
 class TaskForAdmin(admin.ModelAdmin):
@@ -213,12 +126,18 @@ class TaskForAdmin(admin.ModelAdmin):
     form = AddTaskForm
 
 
-class InternTaskForIntern(admin.ModelAdmin):
-    list_display = ('task_type', 'task_link', 'status', 'date_started', 'time_left')
-    readonly_fields = ('time_left',)
-    fields = []
+class Dashboard(admin.ModelAdmin):
+    form = CustomForm
+    list_display = ('type', 'name', 'status', 'date_started', 'time_left')
+    list_display_links = ('name',)
+    readonly_fields = (
+    'time_left', 'date_started', 'status', 'name', 'description', 'requirements', 'submission_type', 'expected_results',
+    'extra_material',)
+    fields = ['time_left', 'date_started', 'status', 'name', 'description', 'requirements', 'submission_type',
+              'expected_results', 'extra_material', 'summary_pitch', 'body', 'conclusion', 'references', 'videos']
     can_delete = False
     actions = None
+    formfield_overrides = {TextField: {'widget': SummernoteWidget()}}
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -226,22 +145,95 @@ class InternTaskForIntern(admin.ModelAdmin):
     def has_add_permission(self, request):
         return False
 
-    def task_link(self, obj):
-        opts = self.model._meta
-        url = reverse('admin:%s_%s_change' %
-                                       (opts.app_label, 'task'),
-                                       args=(obj.task.id,),
-                                       current_app=self.admin_site.name)
-        return '<a href="%s">%s</a>' % (url, obj.task.title)
-    task_link.allow_tags = True
-    task_link.short_description = "task name"
-
-    def __init__(self,*args,**kwargs):
-        super(InternTaskForIntern, self).__init__(*args, **kwargs)
-        self.list_display_links = (None, )
-
     def get_queryset(self, request):
-        return super(InternTaskForIntern, self).get_queryset(request).filter(user=request.user)
+        return super(Dashboard, self).get_queryset(request).filter(user=request.user)
+
+    def get_form(self, request, obj=None, **kwargs):
+        modelform = super(Dashboard, self).get_form(request, obj, **kwargs)
+
+        class ModelFormMetaClass(modelform):
+            def __new__(cls, *args, **kwargs):
+                kwargs['request'] = request
+                return modelform(*args, **kwargs)
+
+        return ModelFormMetaClass
+
+    def get_readonly_fields(self, request, obj=None):
+        if show_as_readonly(obj=obj, request=request):
+            return self.readonly_fields + (
+                'summary_pitch_safe', 'body_safe', 'conclusion_safe', 'reference_urls', 'video_urls',)
+        return self.readonly_fields
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super(Dashboard, self).get_fieldsets(request, obj)
+        if show_as_readonly(obj=obj, request=request):
+            fields_ = fieldsets[0][1]['fields']
+            fields_ = [item for item in fields_ if
+                       item not in ['summary_pitch', 'body', 'conclusion', 'references', 'videos']]
+            fieldsets[0][1].update({'fields': fields_})
+            fieldsets[0][1]['fields'].extend(
+                ['summary_pitch_safe', 'body_safe', 'conclusion_safe', 'reference_urls', 'video_urls'])
+
+        return fieldsets
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        status = InternTask.objects.get(id=object_id).status
+        if status == models.InternTask.UNFINISHED or status == models.InternTask.UNSUBMITTED:
+            is_preview = bool(request.GET.get('preview'))
+            extra_context = {
+                'show_save_and_add_another': False,
+                'show_save': False,
+                'show_save_and_continue': not is_preview,
+                'show_abandon': True,
+                'show_accept': False,
+                'show_preview': not is_preview,
+                'show_submit': is_preview,
+                'show_back': is_preview
+            }
+        else:
+            extra_context = {
+                'show_save_and_add_another': False,
+                'show_save_and_continue': False,
+                'show_save': False,
+                'show_abandon': False,
+                'show_accept': False,
+                'show_preview': False,
+                'show_submit': False,
+                'show_back': False
+            }
+
+        return super(Dashboard, self).change_view(request, object_id,
+                                                  form_url, extra_context=extra_context)
+
+    def response_change(self, request, obj):
+        """
+        Determines the HttpResponse for the change_view stage.
+        """
+        opts = self.model._meta
+        pk_value = obj._get_pk_val()
+        preserved_filters = self.get_preserved_filters(request)
+        user = request.user
+        if '_abandon' in request.POST:
+            obj.status=models.InternTask.ABANDONED
+            obj.save()
+            msg_dict = {'name': force_text(opts.verbose_name), 'obj': force_text(obj.task.title)}
+            msg = _('The %(name)s "%(obj)s" was abandoned!') % msg_dict
+            self.message_user(request, msg, messages.WARNING)
+            return self.response_post_save_change(request, obj)
+        elif '_preview' in request.POST:
+            redirect_url = request.path + '?preview=true'
+            redirect_url = add_preserved_filters({'preserved_filters': preserved_filters, 'opts': opts}, redirect_url)
+            return HttpResponseRedirect(redirect_url)
+        elif '_submit' in request.POST:
+            obj.status=models.InternTask.FINISHED
+            obj.save()
+            msg_dict = {'name': force_text(opts.verbose_name), 'obj': force_text(obj.task.title)}
+            msg = _('You submitted the %(name)s "%(obj)s"!') % msg_dict
+            self.message_user(request, msg, messages.SUCCESS)
+            return self.response_post_save_change(request, obj)
+        else:
+            return super(Dashboard, self).response_change(request, obj)
+
 
 
 class TagAdmin(admin.ModelAdmin):
@@ -252,8 +244,8 @@ class TypeAdmin(admin.ModelAdmin):
     list_display = ('name',)
 
 
-admin.site.register(InternTask, InternTaskForIntern)
+admin.site.register(InternTask, Dashboard)
+admin.site.register(Task, ViewNewTasks)
 admin.site.register(AdminTask, TaskForAdmin)
-admin.site.register(Task, TaskForIntern)
 admin.site.register(Tag, TagAdmin)
 admin.site.register(Type, TypeAdmin)

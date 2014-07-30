@@ -36,11 +36,11 @@ class Task(models.Model):
         (TEXT, 'Text'),
         (BOTH, 'Both')
     )
+    submission_type_dict = dict(MR='Video', TX='Text', BO='Both')
     submission_type = models.CharField(max_length=2,
                                        choices=SUBMISSION_TYPE)
 
-    time_to_complete_task = models.IntegerField(validators=[MinValueValidator(1)],
-                                                help_text='Maximum hours given to complete the task.')
+    time_to_complete_task = models.IntegerField(validators=[MinValueValidator(1)], verbose_name='Hours to complete task')
     publish_date = models.DateTimeField()
     unpublish_date = models.DateTimeField()
     number_of_positions = models.IntegerField(validators=[MinValueValidator(1)],
@@ -141,14 +141,29 @@ class InternTask(models.Model):
     def __unicode__(self):
         return self.user.get_username() + "'s task " + self.task.title
 
-    def task_type(self):
+    def type(self):
         return self.task.type
 
-    def task_name(self):
+    def name(self):
         return self.task.title
 
+    def description(self):
+        return self.task.description
+
+    def requirements(self):
+        return self.task.requirements
+
+    def submission_type(self):
+        return Task.submission_type_dict.get(self.task.submission_type)
+
+    def expected_results(self):
+        return self.task.expected_results
+
+    def extra_material(self):
+        return self.task.extra_material
+
     def time_left(self):
-        s = (timezone.now() - self.date_started).total_seconds()
+        s = self.task.time_to_complete_task * 3600 - (timezone.now() - self.date_started).seconds
         hours, remainder = divmod(s, 3600)
         minutes, seconds = divmod(remainder, 60)
         return '%d:%d:%d' % (int(hours), int(minutes), int(seconds))
