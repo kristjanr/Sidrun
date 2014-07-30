@@ -3,6 +3,7 @@ from django.contrib.admin.templatetags.admin_urls import add_preserved_filters
 from django.core.urlresolvers import reverse
 from django.db.models import TextField, Q
 from django.http import HttpResponseRedirect
+from django.utils import timezone
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext as _
 from django.contrib.admin.templatetags.admin_modify import *
@@ -95,6 +96,8 @@ class ViewNewTasks(admin.ModelAdmin):
             if allowed_number_of_pending_tasks > n_pending_tasks and not pending_tasks.filter(task=obj):
                 new_intern_task = pending_tasks.create(task=obj, user=user, status=models.InternTask.UNFINISHED)
                 new_intern_task_pk = new_intern_task._get_pk_val()
+                n_pending_tasks = pending_tasks.filter(
+                Q(status=InternTask.UNFINISHED) | Q(status=InternTask.UNSUBMITTED)).count()
                 msg = _(
                     'Task %s was assigned to you. You now have %d pending task(s).' % (
                         obj.title, n_pending_tasks))
@@ -128,12 +131,13 @@ class TaskForAdmin(admin.ModelAdmin):
 
 class Dashboard(admin.ModelAdmin):
     form = CustomForm
-    list_display = ('type', 'name', 'status', 'date_started', 'time_left')
+    list_display = ('type', 'name', 'status', 'time_started', 'time_left_or_ended')
     list_display_links = ('name',)
     readonly_fields = (
-    'time_left', 'date_started', 'status', 'name', 'description', 'requirements', 'submission_type', 'expected_results',
-    'extra_material',)
-    fields = ['time_left', 'date_started', 'status', 'name', 'description', 'requirements', 'submission_type',
+        'time_left_or_ended', 'time_started', 'status', 'name', 'description', 'requirements', 'submission_type',
+        'expected_results',
+        'extra_material',)
+    fields = ['time_left_or_ended', 'time_started', 'status', 'name', 'description', 'requirements', 'submission_type',
               'expected_results', 'extra_material', 'summary_pitch', 'body', 'conclusion', 'references', 'videos']
     can_delete = False
     actions = None
@@ -173,7 +177,6 @@ class Dashboard(admin.ModelAdmin):
             fieldsets[0][1].update({'fields': fields_})
             fieldsets[0][1]['fields'].extend(
                 ['summary_pitch_safe', 'body_safe', 'conclusion_safe', 'reference_urls', 'video_urls'])
-
         return fieldsets
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
@@ -206,15 +209,11 @@ class Dashboard(admin.ModelAdmin):
                                                   form_url, extra_context=extra_context)
 
     def response_change(self, request, obj):
-        """
-        Determines the HttpResponse for the change_view stage.
-        """
         opts = self.model._meta
-        pk_value = obj._get_pk_val()
         preserved_filters = self.get_preserved_filters(request)
-        user = request.user
         if '_abandon' in request.POST:
-            obj.status=models.InternTask.ABANDONED
+            obj.status = models.InternTask.ABANDONED
+            obj.time_ended = timezone.now()
             obj.save()
             msg_dict = {'name': force_text(opts.verbose_name), 'obj': force_text(obj.task.title)}
             msg = _('The %(name)s "%(obj)s" was abandoned!') % msg_dict
@@ -225,7 +224,8 @@ class Dashboard(admin.ModelAdmin):
             redirect_url = add_preserved_filters({'preserved_filters': preserved_filters, 'opts': opts}, redirect_url)
             return HttpResponseRedirect(redirect_url)
         elif '_submit' in request.POST:
-            obj.status=models.InternTask.FINISHED
+            obj.status = models.InternTask.FINISHED
+            obj.time_ended = timezone.now()
             obj.save()
             msg_dict = {'name': force_text(opts.verbose_name), 'obj': force_text(obj.task.title)}
             msg = _('You submitted the %(name)s "%(obj)s"!') % msg_dict
@@ -233,7 +233,6 @@ class Dashboard(admin.ModelAdmin):
             return self.response_post_save_change(request, obj)
         else:
             return super(Dashboard, self).response_change(request, obj)
-
 
 
 class TagAdmin(admin.ModelAdmin):

@@ -53,7 +53,7 @@ class Task(models.Model):
         return self.number_of_positions - self.interntask_set.exclude(status=InternTask.ABANDONED).__len__()
 
     def time_left(self):
-        return self.interntask_set.first().time_left()
+        return self.interntask_set.first().time_left_or_ended()
 
     def __unicode__(self):
         return self.title
@@ -106,7 +106,8 @@ class InternTask(models.Model):
         (ABANDONED, 'Abandoned')
     )
     status = models.CharField(max_length=2, choices=STATUSES)
-    date_started = models.DateTimeField(auto_now_add=True)
+    time_started = models.DateTimeField(auto_now_add=True)
+    time_ended = models.DateTimeField(null=True, blank=True)
     summary_pitch = models.TextField(null=True, blank=True)
     body = models.TextField(null=True, blank=True)
     conclusion = models.TextField(null=True, blank=True)
@@ -162,11 +163,14 @@ class InternTask(models.Model):
     def extra_material(self):
         return self.task.extra_material
 
-    def time_left(self):
-        s = self.task.time_to_complete_task * 3600 - (timezone.now() - self.date_started).seconds
-        hours, remainder = divmod(s, 3600)
-        minutes, seconds = divmod(remainder, 60)
-        return '%d:%d:%d' % (int(hours), int(minutes), int(seconds))
+    def time_left_or_ended(self):
+        if self.status == InternTask.UNFINISHED:
+            s = self.task.time_to_complete_task * 3600 - (timezone.now() - self.time_started).seconds
+            hours, remainder = divmod(s, 3600)
+            minutes, seconds = divmod(remainder, 60)
+            return '%d:%d:%d' % (int(hours), int(minutes), int(seconds))
+        else:
+            return self.time_ended
 
     class Meta:
         unique_together = ('task', 'user',)
