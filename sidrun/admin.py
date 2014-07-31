@@ -39,11 +39,11 @@ def show_as_readonly(obj, request):
 
 
 class ViewNewTasks(admin.ModelAdmin):
-    list_display = ('title', 'type', 'type_icon', 'number_of_current_positions', 'publish_date', 'unpublish_date',
+    list_display = ('title', 'type', 'type_icon', 'available_positions', 'deadline',
                     'time_to_complete_task')
     readonly_fields = ('title', 'tags_list', 'type', 'type_icon', 'description', 'requirements', 'submission_type',
-                       'publish_date', 'unpublish_date', 'time_to_complete_task',)
-    fields = ['title', 'type', 'description', 'requirements', 'submission_type', 'time_to_complete_task']
+                       'publish_date', 'deadline', 'time_to_complete_task', 'number_of_positions', 'available_positions',)
+    fields = ['title', 'description', 'requirements', 'submission_type',  'deadline', 'time_to_complete_task', 'number_of_positions', 'available_positions']
     can_delete = False
     actions = None
 
@@ -55,7 +55,9 @@ class ViewNewTasks(admin.ModelAdmin):
 
     def get_queryset(self, request):
         queryset = super(ViewNewTasks, self).get_queryset(request)
-        return queryset.exclude(interntask__user=request.user)
+        now = timezone.now()
+        return queryset.exclude(interntask__user=request.user)\
+            .filter(publish_date__lte=now, deadline__gt=now)
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         intern_tasks_of_user = request.user.interntask_set.filter(task_id=object_id)
@@ -123,7 +125,7 @@ class ViewNewTasks(admin.ModelAdmin):
 
 class TaskForAdmin(admin.ModelAdmin):
     list_display = (
-        'title', 'type', 'tags_list', 'submission_type', 'time_to_complete_task', 'publish_date', 'unpublish_date',
+        'title', 'type', 'tags_list', 'submission_type', 'time_to_complete_task', 'publish_date', 'deadline',
         'number_of_positions',)
     exclude = []
     form = AddTaskForm
@@ -131,13 +133,12 @@ class TaskForAdmin(admin.ModelAdmin):
 
 class Dashboard(admin.ModelAdmin):
     form = CustomForm
-    list_display = ('type', 'name', 'status', 'time_started', 'time_left_or_ended')
+    list_display = ('type', 'name', 'time_started', 'time_left_or_ended', 'status')
     list_display_links = ('name',)
     readonly_fields = (
         'time_left_or_ended', 'time_started', 'status', 'name', 'description', 'requirements', 'submission_type',
-        'expected_results',
-        'extra_material',)
-    fields = ['time_left_or_ended', 'time_started', 'status', 'name', 'description', 'requirements', 'submission_type',
+        'expected_results', 'deadline', 'extra_material',)
+    fields = ['name', 'description', 'requirements', 'submission_type', 'time_started', 'deadline', 'time_left_or_ended',
               'expected_results', 'extra_material', 'summary_pitch', 'body', 'conclusion', 'references', 'videos']
     can_delete = False
     actions = None
@@ -187,7 +188,7 @@ class Dashboard(admin.ModelAdmin):
                 'show_save_and_add_another': False,
                 'show_save': False,
                 'show_save_and_continue': not is_preview,
-                'show_abandon': True,
+                'show_abandon': not is_preview,
                 'show_accept': False,
                 'show_preview': not is_preview,
                 'show_submit': is_preview,

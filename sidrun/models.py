@@ -42,14 +42,13 @@ class Task(models.Model):
 
     time_to_complete_task = models.IntegerField(validators=[MinValueValidator(1)], verbose_name='Hours to complete task')
     publish_date = models.DateTimeField()
-    unpublish_date = models.DateTimeField()
-    number_of_positions = models.IntegerField(validators=[MinValueValidator(1)],
-                                              help_text='The number of positions available.')
+    deadline = models.DateTimeField()
+    number_of_positions = models.IntegerField(validators=[MinValueValidator(1)], verbose_name='Total positions')
     expected_results = models.TextField(max_length=1000, validators=[MinLengthValidator(280)])
 
     extra_material = models.TextField(null=True)
 
-    def number_of_current_positions(self):
+    def available_positions(self):
         return self.number_of_positions - self.interntask_set.exclude(status=InternTask.ABANDONED).__len__()
 
     def time_left(self):
@@ -173,6 +172,8 @@ class InternTask(models.Model):
             return self.time_ended
     time_left_or_ended.allow_tags = True
 
+    def deadline(self):
+        return self.task.deadline
 
     class Meta:
         unique_together = ('task', 'user',)

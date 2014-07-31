@@ -1,10 +1,8 @@
 import re
-import datetime
 
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 from django.utils.encoding import force_text
-from django.forms.models import BaseInlineFormSet
 from django.utils.html import strip_tags
 
 from django import forms
@@ -21,19 +19,19 @@ class AddTaskForm(forms.ModelForm):
 
     def clean(self):
         data = super(AddTaskForm, self).clean()
-        unpublish_date_ = self.cleaned_data.get("unpublish_date")
+        deadline = self.cleaned_data.get("deadline")
         publish_date_ = self.cleaned_data.get("publish_date")
         try:
-            hours_between_dates = (unpublish_date_ - publish_date_).total_seconds() / 60
+            hours_between_dates = (deadline - publish_date_).total_seconds() / 60
         except TypeError:
             hours_between_dates = None
         validation_errors = []
         time_to_complete_task = self.cleaned_data.get("time_to_complete_task")
         if time_to_complete_task is not None and hours_between_dates is not None and time_to_complete_task > hours_between_dates:
             validation_errors.append(
-                ValidationError("Time to complete task has to fit between publish and unpublish dates!"))
-        if publish_date_ and unpublish_date_ and publish_date_ > unpublish_date_:
-            validation_errors.append(ValidationError("The unpublish date must be after the publish date!"))
+                ValidationError("Time to complete task has to fit between publish date and deadline!"))
+        if publish_date_ and deadline and publish_date_ > deadline:
+            validation_errors.append(ValidationError("The deadline must be after the publish date!"))
         if validation_errors:
             raise ValidationError(validation_errors)
         return data
@@ -44,11 +42,11 @@ class AddTaskForm(forms.ModelForm):
             raise ValidationError("Please enter a date that is not in the past!")
         return published_date
 
-    def clean_unpublish_date(self):
-        unpublished_date = self.cleaned_data.get("unpublish_date")
-        if unpublished_date and unpublished_date < timezone.now():
-            raise ValidationError("Please enter a date that is not in the past!")
-        return unpublished_date
+    def clean_deadline(self):
+        deadline = self.cleaned_data.get("deadline")
+        if deadline and deadline < timezone.now():
+            raise ValidationError("Please enter a deadline that is not in the past!")
+        return deadline
 
 
 class CustomForm(forms.ModelForm):
