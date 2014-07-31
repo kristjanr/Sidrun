@@ -27,7 +27,8 @@ def submit_row(context):
         'show_accept': context.get('show_accept'),
         'show_preview': context.get('show_preview'),
         'show_submit': context.get('show_submit'),
-        'show_back': context.get('show_back')
+        'show_back': context.get('show_back'),
+        'show_publish': context.get('show_publish')
     })
     return ctx
 
@@ -42,8 +43,9 @@ class ViewNewTasks(admin.ModelAdmin):
     list_display = ('title', 'type', 'type_icon', 'available_positions', 'deadline',
                     'time_to_complete_task')
     readonly_fields = ('title', 'tags_list', 'type', 'type_icon', 'description', 'requirements', 'submission_type',
-                       'publish_date', 'deadline', 'time_to_complete_task', 'number_of_positions', 'available_positions',)
-    fields = ['title', 'description', 'requirements', 'submission_type',  'deadline', 'time_to_complete_task', 'number_of_positions', 'available_positions']
+                       'start_date', 'deadline', 'time_to_complete_task', 'number_of_positions', 'available_positions',)
+    fields = ['title', 'description', 'requirements', 'submission_type', 'deadline', 'time_to_complete_task',
+              'number_of_positions', 'available_positions']
     can_delete = False
     actions = None
 
@@ -56,8 +58,8 @@ class ViewNewTasks(admin.ModelAdmin):
     def get_queryset(self, request):
         queryset = super(ViewNewTasks, self).get_queryset(request)
         now = timezone.now()
-        return queryset.exclude(interntask__user=request.user)\
-            .filter(publish_date__lte=now, deadline__gt=now)
+        return queryset.exclude(interntask__user=request.user) \
+            .filter(start_date__lte=now, deadline__gt=now)
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         intern_tasks_of_user = request.user.interntask_set.filter(task_id=object_id)
@@ -71,7 +73,7 @@ class ViewNewTasks(admin.ModelAdmin):
                 'show_accept': not user_has_accepted_task,
                 'show_preview': False,
                 'show_submit': False,
-                'show_back': False
+                'show_back': False,
             }
         return super(ViewNewTasks, self).change_view(request, object_id,
                                                      form_url, extra_context=extra_context)
@@ -99,7 +101,7 @@ class ViewNewTasks(admin.ModelAdmin):
                 new_intern_task = pending_tasks.create(task=obj, user=user, status=models.InternTask.UNFINISHED)
                 new_intern_task_pk = new_intern_task._get_pk_val()
                 n_pending_tasks = pending_tasks.filter(
-                Q(status=InternTask.UNFINISHED) | Q(status=InternTask.UNSUBMITTED)).count()
+                    Q(status=InternTask.UNFINISHED) | Q(status=InternTask.UNSUBMITTED)).count()
                 msg = _(
                     'Task %s was assigned to you. You now have %d pending task(s).' % (
                         obj.title, n_pending_tasks))
@@ -125,10 +127,57 @@ class ViewNewTasks(admin.ModelAdmin):
 
 class TaskForAdmin(admin.ModelAdmin):
     list_display = (
-        'title', 'type', 'tags_list', 'submission_type', 'time_to_complete_task', 'publish_date', 'deadline',
+        'title', 'type', 'tags_list', 'submission_type', 'time_to_complete_task', 'start_date', 'deadline',
         'number_of_positions',)
-    exclude = []
+    fields = ['title', 'type', 'tags', 'description', 'requirements', 'submission_type', 'time_to_complete_task',
+                     'deadline', 'number_of_positions', 'expected_results', 'extra_material']
+    readonly_fields = ('start_date',)
     form = AddTaskForm
+
+    def get_form(self, request, obj=None, **kwargs):
+        modelform = super(TaskForAdmin, self).get_form(request, obj, **kwargs)
+
+        class ModelFormAdminMetaClass(modelform):
+            def __new__(cls, *args, **kwargs):
+                kwargs['request'] = request
+                return modelform(*args, **kwargs)
+
+        return ModelFormAdminMetaClass
+
+    def get_readonly_fields(self, request, obj=None):
+        if request.GET.get('preview'):
+            return ('title', 'type', 'tags', 'description', 'requirements', 'submission_type', 'time_to_complete_task',
+                    'start_date', 'deadline', 'number_of_positions', 'expected_results', 'extra_material')
+        return self.readonly_fields
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        is_preview = bool(request.GET.get('preview'))
+        extra_context = {
+            'show_save_and_add_another': False,
+            'show_save': False,
+            'show_save_and_continue': not is_preview,
+            'show_preview': not is_preview,
+            'show_publish': not is_preview,
+            'show_back': is_preview
+        }
+
+        return super(TaskForAdmin, self).change_view(request, object_id,
+                                                     form_url, extra_context=extra_context)
+
+    def response_change(self, request, obj):
+        opts = self.model._meta
+        preserved_filters = self.get_preserved_filters(request)
+        if '_preview' in request.POST:
+            redirect_url = request.path + '?preview=true'
+            redirect_url = add_preserved_filters({'preserved_filters': preserved_filters, 'opts': opts}, redirect_url)
+            return HttpResponseRedirect(redirect_url)
+        elif '_publish' in request.POST:
+            msg_dict = {'name': force_text(opts.verbose_name), 'obj': force_text(obj.title)}
+            msg = _('You published the %(name)s "%(obj)s"!') % msg_dict
+            self.message_user(request, msg, messages.SUCCESS)
+            return self.response_post_save_change(request, obj)
+        else:
+            return super(TaskForAdmin, self).response_change(request, obj)
 
 
 class Dashboard(admin.ModelAdmin):
@@ -138,7 +187,8 @@ class Dashboard(admin.ModelAdmin):
     readonly_fields = (
         'time_left_or_ended', 'time_started', 'status', 'name', 'description', 'requirements', 'submission_type',
         'expected_results', 'deadline', 'extra_material',)
-    fields = ['name', 'description', 'requirements', 'submission_type', 'time_started', 'deadline', 'time_left_or_ended',
+    fields = ['name', 'description', 'requirements', 'submission_type', 'time_started', 'deadline',
+              'time_left_or_ended',
               'expected_results', 'extra_material', 'summary_pitch', 'body', 'conclusion', 'references', 'videos']
     can_delete = False
     actions = None

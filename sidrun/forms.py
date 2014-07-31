@@ -17,36 +17,35 @@ class CustomSelectMultipleTags(forms.ModelMultipleChoiceField):
 class AddTaskForm(forms.ModelForm):
     tags = CustomSelectMultipleTags(widget=forms.CheckboxSelectMultiple, queryset=Tag.objects.all())
 
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
+        super(AddTaskForm, self).__init__(*args, **kwargs)
+
     def clean(self):
         data = super(AddTaskForm, self).clean()
-        deadline = self.cleaned_data.get("deadline")
-        publish_date_ = self.cleaned_data.get("publish_date")
+        deadline = data.get('deadline')
+        time_to_complete_task = data.get('time_to_complete_task')
         try:
-            hours_between_dates = (deadline - publish_date_).total_seconds() / 60
+            hours_between_dates = (deadline - timezone.now()).total_seconds() / 3600
         except TypeError:
-            hours_between_dates = None
-        validation_errors = []
-        time_to_complete_task = self.cleaned_data.get("time_to_complete_task")
-        if time_to_complete_task is not None and hours_between_dates is not None and time_to_complete_task > hours_between_dates:
-            validation_errors.append(
-                ValidationError("Time to complete task has to fit between publish date and deadline!"))
-        if publish_date_ and deadline and publish_date_ > deadline:
-            validation_errors.append(ValidationError("The deadline must be after the publish date!"))
-        if validation_errors:
-            raise ValidationError(validation_errors)
+            return data
+        if time_to_complete_task > hours_between_dates:
+            raise ValidationError("Hours to complete task has to fit between now and deadline!")
         return data
-
-    def clean_publish_date(self):
-        published_date = self.cleaned_data.get("publish_date")
-        if published_date and published_date.date() < timezone.now().date():
-            raise ValidationError("Please enter a date that is not in the past!")
-        return published_date
 
     def clean_deadline(self):
         deadline = self.cleaned_data.get("deadline")
         if deadline and deadline < timezone.now():
             raise ValidationError("Please enter a deadline that is not in the past!")
         return deadline
+
+    def save(self, commit=True):
+        instance = super(AddTaskForm, self).save(commit=False)
+        if '_publish' in self.request.POST:
+            instance.start_date = timezone.now()
+        if commit:
+            instance.save()
+        return instance
 
 
 class CustomForm(forms.ModelForm):

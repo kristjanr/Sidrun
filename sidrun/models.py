@@ -13,11 +13,17 @@ class Type(models.Model):
     def __unicode__(self):
         return self.name
 
+    def __str__(self):
+        return self.name
+
 
 class Tag(models.Model):
     name = models.CharField(max_length=25, unique=True)
 
     def __unicode__(self):
+        return self.name
+
+    def __str__(self):
         return self.name
 
 
@@ -41,7 +47,7 @@ class Task(models.Model):
                                        choices=SUBMISSION_TYPE)
 
     time_to_complete_task = models.IntegerField(validators=[MinValueValidator(1)], verbose_name='Hours to complete task')
-    publish_date = models.DateTimeField()
+    start_date = models.DateTimeField(null=True, blank=True)
     deadline = models.DateTimeField()
     number_of_positions = models.IntegerField(validators=[MinValueValidator(1)], verbose_name='Total positions')
     expected_results = models.TextField(max_length=1000, validators=[MinLengthValidator(280)])
