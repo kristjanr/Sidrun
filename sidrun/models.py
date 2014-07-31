@@ -168,9 +168,11 @@ class InternTask(models.Model):
             s = self.task.time_to_complete_task * 3600 - (timezone.now() - self.time_started).seconds
             hours, remainder = divmod(s, 3600)
             minutes, seconds = divmod(remainder, 60)
-            return '%d:%d:%d' % (int(hours), int(minutes), int(seconds))
+            return '<div id="countdown"></div>%d:%d:%d' % (int(hours), int(minutes), int(seconds))
         else:
             return self.time_ended
+    time_left_or_ended.allow_tags = True
+
 
     class Meta:
         unique_together = ('task', 'user',)
