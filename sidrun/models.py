@@ -105,12 +105,10 @@ class InternTask(models.Model):
     task = models.ForeignKey(to=Task)
     user = models.ForeignKey(to=User)
     UNFINISHED = 'UF'
-    UNSUBMITTED = 'US'
     FINISHED = 'FI'
     ABANDONED = 'AB'
     STATUSES = (
         (UNFINISHED, 'Unfinished'),
-        (UNSUBMITTED, 'Unsubmitted'),
         (FINISHED, 'Finished'),
         (ABANDONED, 'Abandoned')
     )

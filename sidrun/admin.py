@@ -96,11 +96,11 @@ class ViewNewTasks(admin.ModelAdmin):
         if '_accept' in request.POST and not self.user_has_accepted_task(obj, user):
             pending_tasks = user.interntask_set
             n_pending_tasks = pending_tasks.filter(
-                Q(status=InternTask.UNFINISHED) | Q(status=InternTask.UNSUBMITTED)).count()
+                Q(status=InternTask.UNFINISHED)).count()
             allowed_number_of_pending_tasks = user.profile.allowed_number_of_tasks
             msg = ''
             if allowed_number_of_pending_tasks <= n_pending_tasks:
-                msg = _('You are allowed to have %d pending tasks. You already have %d pending tasks! ' % (
+                msg = _('You are allowed to have %d pending tasks. You already have %d pending task(s)! ' % (
                     allowed_number_of_pending_tasks, n_pending_tasks))
             if pending_tasks.filter(task=obj):
                 msg += _('You already have this task!')
@@ -108,7 +108,7 @@ class ViewNewTasks(admin.ModelAdmin):
                 new_intern_task = pending_tasks.create(task=obj, user=user, status=models.InternTask.UNFINISHED)
                 new_intern_task_pk = new_intern_task._get_pk_val()
                 n_pending_tasks = pending_tasks.filter(
-                    Q(status=InternTask.UNFINISHED) | Q(status=InternTask.UNSUBMITTED)).count()
+                    Q(status=InternTask.UNFINISHED)).count()
                 msg = _(
                     'Task %s was assigned to you. You now have %d pending task(s).' % (
                         obj.title, n_pending_tasks))
@@ -274,7 +274,7 @@ class Dashboard(admin.ModelAdmin):
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         status = InternTask.objects.get(id=object_id).status
-        if status == models.InternTask.UNFINISHED or status == models.InternTask.UNSUBMITTED:
+        if status == models.InternTask.UNFINISHED:
             is_preview = bool(request.GET.get('preview'))
             extra_context = {
                 'show_save_and_add_another': False,
