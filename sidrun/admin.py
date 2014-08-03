@@ -155,12 +155,15 @@ class AcceptedInterntasks(admin.TabularInline):
 class TaskForAdmin(admin.ModelAdmin):
     list_display = (
         'title', 'type', 'tags_list', 'submission_type', 'time_to_complete_task', 'start_date', 'deadline',
-        'number_of_positions',)
+        'number_of_positions', 'number_of_users_accepted')
     fields = ['title', 'type', 'tags', 'description', 'requirements', 'submission_type', 'time_to_complete_task',
                      'deadline', 'number_of_positions', 'expected_results', 'extra_material', 'require_references', 'require_videos']
     readonly_fields = ('start_date',)
     form = AddTaskForm
     inlines = [AcceptedInterntasks]
+
+    def number_of_users_accepted(self, obj):
+        return obj.interntask_set.all().count()
 
     def get_form(self, request, obj=None, **kwargs):
         modelform = super(TaskForAdmin, self).get_form(request, obj, **kwargs)
