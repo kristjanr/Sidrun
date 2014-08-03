@@ -36,10 +36,23 @@ def submit_row(context):
     return ctx
 
 
+def calculate_time_left(obj):
+    return obj.task.time_to_complete_task * 3600 - (timezone.now() - obj.time_started).seconds -24 * 3600
+
+
+def overtime(obj):
+    if type(obj) == str:
+        obj = InternTask.objects.get(id=obj)
+    time_left = calculate_time_left(obj)
+    return 0 > time_left
+
+
 def show_interntask_as_readonly(obj, request):
     return (obj.status == models.InternTask.ABANDONED
             or obj.status == models.InternTask.FINISHED
-            or request.GET.get('preview'))
+            or request.GET.get('preview')
+            or overtime(obj)
+            or request.user.groups.filter(name='admins').exists())
 
 
 def show_task_as_readonly(obj, request):
@@ -134,11 +147,11 @@ class ViewNewTasks(admin.ModelAdmin):
 
 class AcceptedInterntasks(admin.TabularInline):
     model = InternTask
-    fields = ['user', 'status', 'time_started', 'link_to_intern_task_details_when_it_is_submitted_or_abandoned']
-    readonly_fields = ('user', 'status', 'time_started', 'link_to_intern_task_details_when_it_is_submitted_or_abandoned')
+    fields = ['user', 'time_started', 'time_ended', 'status', 'overtime', 'link']
+    readonly_fields = ('user', 'status', 'time_started', 'time_ended', 'overtime', 'link')
 
-    def link_to_intern_task_details_when_it_is_submitted_or_abandoned(self, obj):
-        if obj.status == InternTask.FINISHED or obj.status == InternTask.ABANDONED:
+    def link(self, obj):
+        if obj.status == InternTask.FINISHED or obj.status == InternTask.ABANDONED or overtime(obj):
             opts = self.model._meta
             interntask_url = reverse('admin:%s_%s_change' %
                                    (opts.app_label, 'interntask'),
@@ -149,7 +162,10 @@ class AcceptedInterntasks(admin.TabularInline):
         else:
             return obj.task.title
 
-    link_to_intern_task_details_when_it_is_submitted_or_abandoned.allow_tags = True
+    link.allow_tags = True
+
+    def overtime(self, obj):
+        return overtime(obj)
 
 
 class TaskForAdmin(admin.ModelAdmin):
@@ -219,6 +235,10 @@ class TaskForAdmin(admin.ModelAdmin):
             return super(TaskForAdmin, self).response_change(request, obj)
 
 
+def user_is_admin(user):
+    return user.groups.filter(name='admins').exists()
+
+
 class Dashboard(admin.ModelAdmin):
     form = CustomForm
     list_display = ('type', 'name', 'time_started', 'time_left_or_ended', 'status')
@@ -239,9 +259,30 @@ class Dashboard(admin.ModelAdmin):
     def has_add_permission(self, request):
         return False
 
+    def get_list_display(self, request):
+        list_display = super(Dashboard, self).get_list_display(request)
+        if user_is_admin(request.user) and 'user' not in list_display:
+            list_display = ('user',) + list_display
+        return list_display
+
+    def time_left_or_ended(self, obj):
+        if obj.status == InternTask.UNFINISHED:
+            if not overtime(obj):
+                s = calculate_time_left(obj)
+                hours, remainder = divmod(s, 3600)
+                minutes, seconds = divmod(remainder, 60)
+                return '<div id="countdown"></div>%d:%d:%d' % (int(hours), int(minutes), int(seconds))
+            else:
+                return "Overtime!"
+        else:
+            return obj.time_ended
+
+    time_left_or_ended.allow_tags = True
+
     def get_queryset(self, request):
         queryset = super(Dashboard, self).get_queryset(request)
-        if request.user.groups.filter(name='admins').exists():
+        is_admin = user_is_admin(request.user)
+        if is_admin:
             return queryset
         else:
             return queryset.filter(user=request.user)
@@ -257,16 +298,14 @@ class Dashboard(admin.ModelAdmin):
         return ModelFormMetaClass
 
     def get_readonly_fields(self, request, obj=None):
-        if show_interntask_as_readonly(obj=obj, request=request)\
-                or request.user.groups.filter(name='admins').exists():
+        if show_interntask_as_readonly(obj=obj, request=request):
             return self.readonly_fields + (
                 'summary_pitch_safe', 'body_safe', 'conclusion_safe', 'reference_urls', 'video_urls',)
         return self.readonly_fields
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(Dashboard, self).get_fieldsets(request, obj)
-        if show_interntask_as_readonly(obj=obj, request=request)\
-                or request.user.groups.filter(name='admins').exists():
+        if show_interntask_as_readonly(obj=obj, request=request):
             fields_ = fieldsets[0][1]['fields']
             fields_ = [item for item in fields_ if
                        item not in ['summary_pitch', 'body', 'conclusion', 'references', 'videos']]
@@ -277,7 +316,8 @@ class Dashboard(admin.ModelAdmin):
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         status = InternTask.objects.get(id=object_id).status
-        if status == models.InternTask.UNFINISHED:
+        if status == models.InternTask.UNFINISHED\
+                and not overtime(object_id):
             is_preview = bool(request.GET.get('preview'))
             extra_context = {
                 'show_save_and_add_another': False,
@@ -307,26 +347,29 @@ class Dashboard(admin.ModelAdmin):
     def response_change(self, request, obj):
         opts = self.model._meta
         preserved_filters = self.get_preserved_filters(request)
-        if '_abandon' in request.POST:
-            obj.status = models.InternTask.ABANDONED
-            obj.time_ended = timezone.now()
-            obj.save()
-            msg_dict = {'name': force_text(opts.verbose_name), 'obj': force_text(obj.task.title)}
-            msg = _('The %(name)s "%(obj)s" was abandoned!') % msg_dict
-            self.message_user(request, msg, messages.WARNING)
-            return self.response_post_save_change(request, obj)
-        elif '_preview' in request.POST:
-            redirect_url = request.path + '?preview=true'
-            redirect_url = add_preserved_filters({'preserved_filters': preserved_filters, 'opts': opts}, redirect_url)
-            return HttpResponseRedirect(redirect_url)
-        elif '_submit' in request.POST:
-            obj.status = models.InternTask.FINISHED
-            obj.time_ended = timezone.now()
-            obj.save()
-            msg_dict = {'name': force_text(opts.verbose_name), 'obj': force_text(obj.task.title)}
-            msg = _('You submitted the %(name)s "%(obj)s"!') % msg_dict
-            self.message_user(request, msg, messages.SUCCESS)
-            return self.response_post_save_change(request, obj)
+        if not overtime(obj.id):
+            if '_abandon' in request.POST:
+                obj.status = models.InternTask.ABANDONED
+                obj.time_ended = timezone.now()
+                obj.save()
+                msg_dict = {'name': force_text(opts.verbose_name), 'obj': force_text(obj.task.title)}
+                msg = _('The %(name)s "%(obj)s" was abandoned!') % msg_dict
+                self.message_user(request, msg, messages.WARNING)
+                return self.response_post_save_change(request, obj)
+            elif '_preview' in request.POST:
+                redirect_url = request.path + '?preview=true'
+                redirect_url = add_preserved_filters({'preserved_filters': preserved_filters, 'opts': opts}, redirect_url)
+                return HttpResponseRedirect(redirect_url)
+            elif '_submit' in request.POST:
+                if True:
+                    obj.status = models.InternTask.FINISHED
+                    obj.time_ended = timezone.now()
+                    obj.save()
+
+                msg_dict = {'name': force_text(opts.verbose_name), 'obj': force_text(obj.task.title)}
+                msg = _('You submitted the %(name)s "%(obj)s"!') % msg_dict
+                self.message_user(request, msg, messages.SUCCESS)
+                return self.response_post_save_change(request, obj)
         else:
             return super(Dashboard, self).response_change(request, obj)
 

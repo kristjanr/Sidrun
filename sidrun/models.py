@@ -170,16 +170,6 @@ class InternTask(models.Model):
     def extra_material(self):
         return self.task.extra_material
 
-    def time_left_or_ended(self):
-        if self.status == InternTask.UNFINISHED:
-            s = self.task.time_to_complete_task * 3600 - (timezone.now() - self.time_started).seconds
-            hours, remainder = divmod(s, 3600)
-            minutes, seconds = divmod(remainder, 60)
-            return '<div id="countdown"></div>%d:%d:%d' % (int(hours), int(minutes), int(seconds))
-        else:
-            return self.time_ended
-    time_left_or_ended.allow_tags = True
-
     def deadline(self):
         return self.task.deadline
 
