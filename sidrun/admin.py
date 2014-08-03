@@ -37,11 +37,11 @@ def submit_row(context):
 
 
 def calculate_time_left(obj):
-    return obj.task.time_to_complete_task * 3600 - (timezone.now() - obj.time_started).seconds -24 * 3600
+    return obj.task.time_to_complete_task * 3600 - (timezone.now() - obj.time_started).seconds
 
 
 def overtime(obj):
-    if type(obj) == str:
+    if type(obj) == str or type(obj) == int:
         obj = InternTask.objects.get(id=obj)
     time_left = calculate_time_left(obj)
     return 0 > time_left
@@ -56,7 +56,10 @@ def show_interntask_as_readonly(obj, request):
 
 
 def show_task_as_readonly(obj, request):
-    return obj.start_date or request.GET.get('preview')
+    if obj:
+        return obj.start_date or request.GET.get('preview')
+    else:
+        return False
 
 
 class ViewNewTasks(admin.ModelAdmin):
@@ -79,7 +82,9 @@ class ViewNewTasks(admin.ModelAdmin):
         queryset = super(ViewNewTasks, self).get_queryset(request)
         now = timezone.now()
         return queryset.exclude(interntask__user=request.user) \
-            .filter(start_date__lte=now, deadline__gt=now)
+            .filter(start_date__lte=now).\
+            extra(where=["deadline > now() + interval '1 hour' * time_to_complete_task ",
+                         "number_of_positions > (SELECT COUNT(*) FROM sidrun_interntask WHERE sidrun_interntask.id = sidrun_task.id AND status != 'AB')"])
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         intern_tasks_of_user = request.user.interntask_set.filter(task_id=object_id)
@@ -130,10 +135,6 @@ class ViewNewTasks(admin.ModelAdmin):
                                        args=(new_intern_task_pk,),
                                        current_app=self.admin_site.name)
                 self.message_user(request, msg, messages.SUCCESS)
-
-            else:
-                self.message_user(request, msg, messages.WARNING)
-                redirect_url = request.path
             redirect_url = add_preserved_filters({'preserved_filters': preserved_filters, 'opts': opts}, redirect_url)
             return HttpResponseRedirect(redirect_url)
         else:
@@ -200,8 +201,13 @@ class TaskForAdmin(admin.ModelAdmin):
     def change_view(self, request, object_id, form_url='', extra_context=None):
         is_preview = bool(request.GET.get('preview'))
         start_date = Task.objects.get(id=object_id).start_date
-
-        if is_preview:
+        if start_date:
+            extra_context = {
+                'show_save_and_add_another': False,
+                'show_save': False,
+                'show_save_and_continue': False
+            }
+        else:
             extra_context = {
                 'show_save_and_add_another': False,
                 'show_save': False,
@@ -209,12 +215,6 @@ class TaskForAdmin(admin.ModelAdmin):
                 'show_preview': not is_preview,
                 'show_publish': not is_preview,
                 'show_back': is_preview
-            }
-        elif start_date:
-            extra_context = {
-                'show_save_and_add_another': False,
-                'show_save': False,
-                'show_save_and_continue': False
             }
         return super(TaskForAdmin, self).change_view(request, object_id,
                                                      form_url, extra_context=extra_context)
@@ -361,15 +361,15 @@ class Dashboard(admin.ModelAdmin):
                 redirect_url = add_preserved_filters({'preserved_filters': preserved_filters, 'opts': opts}, redirect_url)
                 return HttpResponseRedirect(redirect_url)
             elif '_submit' in request.POST:
-                if True:
-                    obj.status = models.InternTask.FINISHED
-                    obj.time_ended = timezone.now()
-                    obj.save()
-
+                obj.status = models.InternTask.FINISHED
+                obj.time_ended = timezone.now()
+                obj.save()
                 msg_dict = {'name': force_text(opts.verbose_name), 'obj': force_text(obj.task.title)}
                 msg = _('You submitted the %(name)s "%(obj)s"!') % msg_dict
                 self.message_user(request, msg, messages.SUCCESS)
                 return self.response_post_save_change(request, obj)
+            else:
+                return super(Dashboard, self).response_change(request, obj)
         else:
             return super(Dashboard, self).response_change(request, obj)
 
