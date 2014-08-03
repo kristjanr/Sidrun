@@ -1,5 +1,8 @@
 from django.contrib import admin
+from django.contrib.admin.models import LogEntry
 from django.contrib.admin.templatetags.admin_urls import add_preserved_filters
+from django.contrib.auth.models import User, Group
+from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.db.models import TextField, Q
 from django.http import HttpResponseRedirect
@@ -332,6 +335,48 @@ class TagAdmin(admin.ModelAdmin):
 class TypeAdmin(admin.ModelAdmin):
     list_display = ('name',)
 
+
+class LogAdmin(admin.ModelAdmin):
+    list_display = ('action_time', 'user', 'content_type', 'object', 'change_message')
+    list_display_links = ('action_time', )
+    fields = ['action_time', 'user', 'content_type', 'object', 'change_message']
+    readonly_fields = ('action_time', 'user', 'content_type', 'object', 'change_message',)
+
+    can_delete = False
+    actions = None
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request):
+        return False
+
+    def get_queryset(self, request):
+        queryset = super(LogAdmin, self).get_queryset(request)
+        interns_group_id = Group.objects.get(name='interns').id
+        intern_user_ids = User.objects.filter(groups__name='interns')
+        # # show only log entries that interns have made
+        # if request.user.groups.filter(name='admins').exists():
+        #     return queryset
+        # else:
+        return queryset.filter(user_id__in=intern_user_ids)
+
+    def user(self, obj):
+        return User.objects.get(id=obj.user_id)
+
+    def content_type(self, obj):
+        return ContentType.objects.get(id=obj.content_type_id)
+
+    def object(self, obj):
+        label = obj.object_repr
+        object_url = reverse('admin:%s_%s_change' %
+                       ('sidrun', 'interntask'),
+                       args=(obj.object_id,),
+                       current_app=self.admin_site.name)
+        return '<a href="%s">%s</a>' % (object_url, label)
+    object.allow_tags = True
+
+admin.site.register(LogEntry, LogAdmin)
 admin.site.register(InternTask, Dashboard)
 admin.site.register(Task, ViewNewTasks)
 admin.site.register(AdminTask, TaskForAdmin)
