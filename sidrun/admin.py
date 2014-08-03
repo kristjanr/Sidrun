@@ -84,7 +84,7 @@ class ViewNewTasks(admin.ModelAdmin):
         return queryset.exclude(interntask__user=request.user) \
             .filter(start_date__lte=now).\
             extra(where=["deadline > now() + interval '1 hour' * time_to_complete_task ",
-                         "number_of_positions > (SELECT COUNT(*) FROM sidrun_interntask WHERE sidrun_interntask.id = sidrun_task.id AND status != 'AB')"])
+                         "number_of_positions > (SELECT COUNT(*) FROM sidrun_interntask WHERE sidrun_interntask.task_id = sidrun_task.id AND status != 'AB')"])
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         intern_tasks_of_user = request.user.interntask_set.filter(task_id=object_id)
