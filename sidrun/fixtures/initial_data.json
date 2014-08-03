@@ -140,11 +140,13 @@
             "title": "foo bar",
             "type": 1,
             "tags": [1, 7, 8],
-            "deadline": "2014-08-29T21:36:47Z",
-            "start_date": "2014-07-29T21:36:47Z",
-            "extra_material": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.",
             "number_of_positions": 5,
+            "deadline": "2014-08-29T21:36:47Z",
+            "require_videos": false,
+            "extra_material": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.",
+            "require_references": true,
             "submission_type": "TX",
+            "start_date": "2014-08-03T14:19:40.056Z",
             "expected_results": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed."
         }
     },
@@ -158,10 +160,13 @@
             "title": "second task!!",
             "type": 3,
             "tags": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
-            "deadline": "2014-08-29T21:39:16Z",
-            "extra_material": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.",
             "number_of_positions": 4,
+            "deadline": "2014-08-29T21:39:16Z",
+            "require_videos": true,
+            "extra_material": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.",
+            "require_references": true,
             "submission_type": "BO",
+            "start_date": "2014-08-03T14:17:25.168Z",
             "expected_results": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec porta neque. Proin ligula nibh, ornare id neque aliquam, pretium sed."
         }
     },
@@ -210,7 +215,7 @@
         "model": "auth.group",
         "fields": {
             "name": "admins",
-            "permissions": [10, 11, 12, 28, 29, 30]
+            "permissions": [10, 11, 12, 35, 28, 29, 30]
         }
     },
     {

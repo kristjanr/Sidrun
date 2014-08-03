@@ -53,6 +53,8 @@ class Task(models.Model):
     expected_results = models.TextField(max_length=1000, validators=[MinLengthValidator(280)])
 
     extra_material = models.TextField(null=True)
+    require_references = models.BooleanField(default=True)
+    require_videos = models.BooleanField(default=True)
 
     def available_positions(self):
         return self.number_of_positions - self.interntask_set.exclude(status=InternTask.ABANDONED).__len__()
@@ -71,7 +73,9 @@ class Task(models.Model):
 
     type_icon.allow_tags = True
 
-    verbose_name = 'new task'
+    class Meta:
+        verbose_name = 'new task'
+        verbose_name_plural = 'New tasks'
 
 
 class AdminTask(Task):

@@ -33,10 +33,14 @@ def submit_row(context):
     return ctx
 
 
-def show_as_readonly(obj, request):
+def show_interntask_as_readonly(obj, request):
     return (obj.status == models.InternTask.ABANDONED
             or obj.status == models.InternTask.FINISHED
             or request.GET.get('preview'))
+
+
+def show_task_as_readonly(obj, request):
+    return obj.start_date or request.GET.get('preview')
 
 
 class ViewNewTasks(admin.ModelAdmin):
@@ -125,14 +129,35 @@ class ViewNewTasks(admin.ModelAdmin):
         return bool(intern_tasks_of_user.count())
 
 
+class AcceptedInterntasks(admin.TabularInline):
+    model = InternTask
+    fields = ['user', 'status', 'time_started', 'link_to_intern_task_details_when_it_is_submitted_or_abandoned']
+    readonly_fields = ('user', 'status', 'time_started', 'link_to_intern_task_details_when_it_is_submitted_or_abandoned')
+
+    def link_to_intern_task_details_when_it_is_submitted_or_abandoned(self, obj):
+        if obj.status == InternTask.FINISHED or obj.status == InternTask.ABANDONED:
+            opts = self.model._meta
+            interntask_url = reverse('admin:%s_%s_change' %
+                                   (opts.app_label, 'interntask'),
+                                   args=(obj.id,),
+                                   current_app=self.admin_site.name)
+
+            return '<a href="%s">%s</a>' % (interntask_url, obj.task.title)
+        else:
+            return obj.task.title
+
+    link_to_intern_task_details_when_it_is_submitted_or_abandoned.allow_tags = True
+
+
 class TaskForAdmin(admin.ModelAdmin):
     list_display = (
         'title', 'type', 'tags_list', 'submission_type', 'time_to_complete_task', 'start_date', 'deadline',
         'number_of_positions',)
     fields = ['title', 'type', 'tags', 'description', 'requirements', 'submission_type', 'time_to_complete_task',
-                     'deadline', 'number_of_positions', 'expected_results', 'extra_material']
+                     'deadline', 'number_of_positions', 'expected_results', 'extra_material', 'require_references', 'require_videos']
     readonly_fields = ('start_date',)
     form = AddTaskForm
+    inlines = [AcceptedInterntasks]
 
     def get_form(self, request, obj=None, **kwargs):
         modelform = super(TaskForAdmin, self).get_form(request, obj, **kwargs)
@@ -145,22 +170,30 @@ class TaskForAdmin(admin.ModelAdmin):
         return ModelFormAdminMetaClass
 
     def get_readonly_fields(self, request, obj=None):
-        if request.GET.get('preview'):
+        if show_task_as_readonly(obj, request):
             return ('title', 'type', 'tags', 'description', 'requirements', 'submission_type', 'time_to_complete_task',
-                    'start_date', 'deadline', 'number_of_positions', 'expected_results', 'extra_material')
+                    'start_date', 'deadline', 'number_of_positions', 'expected_results', 'extra_material', 'require_references', 'require_videos')
         return self.readonly_fields
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         is_preview = bool(request.GET.get('preview'))
-        extra_context = {
-            'show_save_and_add_another': False,
-            'show_save': False,
-            'show_save_and_continue': not is_preview,
-            'show_preview': not is_preview,
-            'show_publish': not is_preview,
-            'show_back': is_preview
-        }
+        start_date = Task.objects.get(id=object_id).start_date
 
+        if is_preview:
+            extra_context = {
+                'show_save_and_add_another': False,
+                'show_save': False,
+                'show_save_and_continue': not is_preview,
+                'show_preview': not is_preview,
+                'show_publish': not is_preview,
+                'show_back': is_preview
+            }
+        elif start_date:
+            extra_context = {
+                'show_save_and_add_another': False,
+                'show_save': False,
+                'show_save_and_continue': False
+            }
         return super(TaskForAdmin, self).change_view(request, object_id,
                                                      form_url, extra_context=extra_context)
 
@@ -201,7 +234,11 @@ class Dashboard(admin.ModelAdmin):
         return False
 
     def get_queryset(self, request):
-        return super(Dashboard, self).get_queryset(request).filter(user=request.user)
+        queryset = super(Dashboard, self).get_queryset(request)
+        if request.user.groups.filter(name='admins').exists():
+            return queryset
+        else:
+            return queryset.filter(user=request.user)
 
     def get_form(self, request, obj=None, **kwargs):
         modelform = super(Dashboard, self).get_form(request, obj, **kwargs)
@@ -214,14 +251,16 @@ class Dashboard(admin.ModelAdmin):
         return ModelFormMetaClass
 
     def get_readonly_fields(self, request, obj=None):
-        if show_as_readonly(obj=obj, request=request):
+        if show_interntask_as_readonly(obj=obj, request=request)\
+                or request.user.groups.filter(name='admins').exists():
             return self.readonly_fields + (
                 'summary_pitch_safe', 'body_safe', 'conclusion_safe', 'reference_urls', 'video_urls',)
         return self.readonly_fields
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(Dashboard, self).get_fieldsets(request, obj)
-        if show_as_readonly(obj=obj, request=request):
+        if show_interntask_as_readonly(obj=obj, request=request)\
+                or request.user.groups.filter(name='admins').exists():
             fields_ = fieldsets[0][1]['fields']
             fields_ = [item for item in fields_ if
                        item not in ['summary_pitch', 'body', 'conclusion', 'references', 'videos']]
@@ -287,12 +326,11 @@ class Dashboard(admin.ModelAdmin):
 
 
 class TagAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+    pass
 
 
 class TypeAdmin(admin.ModelAdmin):
     list_display = ('name',)
-
 
 admin.site.register(InternTask, Dashboard)
 admin.site.register(Task, ViewNewTasks)

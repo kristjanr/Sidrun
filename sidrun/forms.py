@@ -96,7 +96,7 @@ class CustomForm(forms.ModelForm):
 
     def clean_references(self):
         references = self.data.get("references")
-        if self.need_to_validate():
+        if self.need_to_validate() and self.instance.task.require_references:
             references_prepared_for_validation = re.findall(r'href=[\'"]?([^\'" >]+)', references)
             if not references_prepared_for_validation:
                 raise ValidationError("There needs to be at least one url address in references. Please use the link icon to add one!")
@@ -110,7 +110,7 @@ class CustomForm(forms.ModelForm):
 
     def clean_videos(self):
         videos = self.data.get("videos")
-        if self.need_to_validate():
+        if self.need_to_validate() and self.instance.task.require_videos:
             video_urls_prepared_for_validation = re.findall(r'href=[\'"]?([^\'" >]+)', videos)
             if not video_urls_prepared_for_validation:
                 raise ValidationError("There needs to be at least one url address in videos. Please use the link icon to add one!")
