@@ -23,9 +23,7 @@ from sidrun.models import AdminTask, Task, Tag, Type, InternTask
 def submit_row(context):
     ctx = original_submit_row(context)
     ctx.update({
-        'show_save_and_add_another': context.get('show_save_and_add_another', ctx['show_save_and_add_another']),
         'show_save_and_continue': context.get('show_save_and_continue', ctx['show_save_and_continue']),
-        'show_save': context.get('show_save', ctx['show_save']),
         'show_abandon': context.get('show_abandon'),
         'show_accept': context.get('show_accept'),
         'show_preview': context.get('show_preview'),
@@ -91,9 +89,7 @@ class ViewNewTasks(admin.ModelAdmin):
         user_has_accepted_task = bool(intern_tasks_of_user.count())
         if not user_has_accepted_task:
             extra_context = {
-                'show_save_and_add_another': False,
                 'show_save_and_continue': False,
-                'show_save': False,
                 'show_abandon': False,
                 'show_accept': not user_has_accepted_task,
                 'show_preview': False,
@@ -203,14 +199,10 @@ class TaskForAdmin(admin.ModelAdmin):
         start_date = Task.objects.get(id=object_id).start_date
         if start_date:
             extra_context = {
-                'show_save_and_add_another': False,
-                'show_save': False,
                 'show_save_and_continue': False
             }
         else:
             extra_context = {
-                'show_save_and_add_another': False,
-                'show_save': False,
                 'show_save_and_continue': not is_preview,
                 'show_preview': not is_preview,
                 'show_publish': not is_preview,
@@ -320,8 +312,6 @@ class Dashboard(admin.ModelAdmin):
                 and not overtime(object_id):
             is_preview = bool(request.GET.get('preview'))
             extra_context = {
-                'show_save_and_add_another': False,
-                'show_save': False,
                 'show_save_and_continue': not is_preview,
                 'show_abandon': not is_preview,
                 'show_accept': False,
@@ -331,9 +321,7 @@ class Dashboard(admin.ModelAdmin):
             }
         else:
             extra_context = {
-                'show_save_and_add_another': False,
                 'show_save_and_continue': False,
-                'show_save': False,
                 'show_abandon': False,
                 'show_accept': False,
                 'show_preview': False,
