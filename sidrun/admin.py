@@ -16,7 +16,7 @@ from django_summernote.widgets import SummernoteWidget
 
 from sidrun import models
 from sidrun.forms import CustomForm, AddTaskForm
-from sidrun.models import AdminTask, Task, Tag, Type, InternTask
+from sidrun.models import AdminTask, Task, Tag, Type, InternTask, HelpText, AdminHelpText
 
 
 @register.inclusion_tag('admin/submit_line.html', takes_context=True)
@@ -410,9 +410,31 @@ class LogAdmin(admin.ModelAdmin):
         return '<a href="%s">%s</a>' % (object_url, label)
     object.allow_tags = True
 
+
+class HelpTextAdmin(admin.ModelAdmin):
+    list_display = ('heading', 'content')
+
+
+class HelpTextForAdmin(HelpTextAdmin):
+    pass
+
+
+class HelpTextForIntern(HelpTextAdmin):
+    actions = None
+    readonly_fields = ('heading', 'content')
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        extra_context = {
+            'show_save_and_continue': False
+        }
+        return super(HelpTextForIntern, self).change_view(request, object_id,
+                                                     form_url, extra_context=extra_context)
+
+
 admin.site.register(LogEntry, LogAdmin)
 admin.site.register(InternTask, Dashboard)
 admin.site.register(Task, ViewNewTasks)
 admin.site.register(AdminTask, TaskForAdmin)
 admin.site.register(Tag, TagAdmin)
-admin.site.register(Type, TypeAdmin)
+admin.site.register(HelpText, HelpTextForIntern)
+admin.site.register(AdminHelpText, HelpTextForAdmin)

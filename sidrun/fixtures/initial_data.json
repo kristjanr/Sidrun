@@ -207,7 +207,7 @@
         "model": "auth.group",
         "fields": {
             "name": "interns",
-            "permissions": [35, 26]
+            "permissions": [38, 35, 26]
         }
     },
     {
@@ -215,7 +215,7 @@
         "model": "auth.group",
         "fields": {
             "name": "admins",
-            "permissions": [2, 10, 11, 12, 35, 28, 29, 30]
+            "permissions": [2, 10, 11, 12, 40, 41, 42, 35, 28, 29, 30]
         }
     },
     {

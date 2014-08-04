@@ -177,3 +177,18 @@ class InternTask(models.Model):
         unique_together = ('task', 'user',)
         verbose_name = 'Accepted task'
         verbose_name_plural = 'Accepted tasks'
+
+
+class HelpText(models.Model):
+    heading = models.CharField(max_length=100)
+    content = models.TextField()
+
+    def __unicode__(self):
+        return self.heading
+
+
+class AdminHelpText(HelpText):
+    class Meta:
+        proxy = True
+        verbose_name = 'help text (admin)'
+        verbose_name_plural = 'help texts (admin)'
