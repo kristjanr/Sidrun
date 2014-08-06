@@ -1,5 +1,5 @@
-Django==1.6.5
-Pillow==2.5.1
-django-summernote==0.5.13
-wsgiref==0.1.2
-psycopg2==2.5.3
+Django>=1.6.5
+Pillow>=2.5.1
+django-summernote>=0.5.13
+wsgiref>=0.1.2
+psycopg2>=2.5.3
