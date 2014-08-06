@@ -99,6 +99,14 @@ class ViewNewTasks(admin.ModelAdmin):
         return super(ViewNewTasks, self).change_view(request, object_id,
                                                      form_url, extra_context=extra_context)
 
+    def get_n_pending_tasks(self, pending_tasks):
+        counter = 0
+        pending_tasks = pending_tasks.filter(Q(status=InternTask.UNFINISHED)).all()
+        for task in pending_tasks:
+            if not overtime(task):
+                counter += 1
+        return counter
+
     def response_change(self, request, obj):
         """
         Determines the HttpResponse for the change_view stage.
@@ -109,8 +117,7 @@ class ViewNewTasks(admin.ModelAdmin):
         user = request.user
         if '_accept' in request.POST and not self.user_has_accepted_task(obj, user):
             pending_tasks = user.interntask_set
-            n_pending_tasks = pending_tasks.filter(
-                Q(status=InternTask.UNFINISHED)).count()
+            n_pending_tasks = self.get_n_pending_tasks(pending_tasks)
             allowed_number_of_pending_tasks = user.profile.allowed_number_of_tasks
             msg = ''
             if allowed_number_of_pending_tasks <= n_pending_tasks:
@@ -123,8 +130,7 @@ class ViewNewTasks(admin.ModelAdmin):
             if allowed_number_of_pending_tasks > n_pending_tasks and not pending_tasks.filter(task=obj):
                 new_intern_task = pending_tasks.create(task=obj, user=user, status=models.InternTask.UNFINISHED)
                 new_intern_task_pk = new_intern_task._get_pk_val()
-                n_pending_tasks = pending_tasks.filter(
-                    Q(status=InternTask.UNFINISHED)).count()
+                n_pending_tasks = self.get_n_pending_tasks(pending_tasks)
                 msg = _(
                     'Task %s was assigned to you. You now have %d pending task(s).' % (
                         obj.title, n_pending_tasks))
