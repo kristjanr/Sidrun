@@ -116,8 +116,10 @@ class ViewNewTasks(admin.ModelAdmin):
             if allowed_number_of_pending_tasks <= n_pending_tasks:
                 msg = _('You are allowed to have %d pending tasks. You already have %d pending task(s)! ' % (
                     allowed_number_of_pending_tasks, n_pending_tasks))
+                self.message_user(request, msg, messages.WARNING)
             if pending_tasks.filter(task=obj):
                 msg += _('You already have this task!')
+                self.message_user(request, msg, messages.WARNING)
             if allowed_number_of_pending_tasks > n_pending_tasks and not pending_tasks.filter(task=obj):
                 new_intern_task = pending_tasks.create(task=obj, user=user, status=models.InternTask.UNFINISHED)
                 new_intern_task_pk = new_intern_task._get_pk_val()
@@ -131,8 +133,9 @@ class ViewNewTasks(admin.ModelAdmin):
                                        args=(new_intern_task_pk,),
                                        current_app=self.admin_site.name)
                 self.message_user(request, msg, messages.SUCCESS)
-            redirect_url = add_preserved_filters({'preserved_filters': preserved_filters, 'opts': opts}, redirect_url)
-            return HttpResponseRedirect(redirect_url)
+                redirect_url = add_preserved_filters({'preserved_filters': preserved_filters, 'opts': opts}, redirect_url)
+                return HttpResponseRedirect(redirect_url)
+            return self.response_post_save_change(request, obj)
         else:
             return super(ViewNewTasks, self).response_change(request, obj)
 
