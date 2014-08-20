@@ -11,5 +11,5 @@ urlpatterns = patterns('',
     # url(r'^$', 'tasks.views.home', name='home'),
     # url(r'^blog/', include('blog.urls')),
     (r'^summernote/', include('django_summernote.urls')),
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'', include(admin.site.urls)),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
