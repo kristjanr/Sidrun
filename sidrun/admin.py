@@ -4,7 +4,7 @@ from django.contrib.admin.templatetags.admin_urls import add_preserved_filters
 from django.contrib.auth.models import User, Group
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
-from django.db.models import TextField, Q
+from django.db.models import TextField, Q, CharField
 from django.http import HttpResponseRedirect
 from django.utils import timezone
 from django.utils.encoding import force_text
@@ -183,6 +183,7 @@ class TaskForAdmin(admin.ModelAdmin):
     readonly_fields = ('start_date',)
     form = AddTaskForm
     inlines = [AcceptedInterntasks]
+    formfield_overrides = {TextField: {'widget': SummernoteWidget()}, CharField: {'widget': SummernoteWidget()}}
 
     def number_of_users_accepted(self, obj):
         return obj.interntask_set.all().count()
@@ -425,7 +426,7 @@ class HelpTextAdmin(admin.ModelAdmin):
 
 
 class HelpTextForAdmin(HelpTextAdmin):
-    pass
+    formfield_overrides = {TextField: {'widget': SummernoteWidget()}, CharField: {'widget': SummernoteWidget()}}
 
 
 class HelpTextForIntern(HelpTextAdmin):

@@ -1,8 +1,7 @@
 from django.contrib.auth.models import User
-from django.core.validators import MinLengthValidator, MinValueValidator, URLValidator
+from django.core.validators import MinLengthValidator, MinValueValidator
 from django.db import models
 from django.db.models.signals import post_save
-from django.utils import timezone
 from django.utils.safestring import mark_safe
 
 
@@ -31,8 +30,8 @@ class Task(models.Model):
     title = models.CharField(max_length=140)
     type = models.ForeignKey(Type)
     tags = models.ManyToManyField(Tag)
-    description = models.TextField(max_length=5000, validators=[MinLengthValidator(280), ])
-    requirements = models.TextField(max_length=5000, validators=[MinLengthValidator(140)])
+    description = models.TextField(max_length=5000, validators=[MinLengthValidator(28)])
+    requirements = models.TextField(max_length=5000, validators=[MinLengthValidator(28)])
 
     VIDEO = 'MR'
     TEXT = 'TX'
@@ -50,7 +49,7 @@ class Task(models.Model):
     start_date = models.DateTimeField(null=True, blank=True)
     deadline = models.DateTimeField()
     number_of_positions = models.IntegerField(validators=[MinValueValidator(1)], verbose_name='Total positions')
-    expected_results = models.TextField(max_length=1000, validators=[MinLengthValidator(280)])
+    expected_results = models.TextField(max_length=1000, validators=[MinLengthValidator(28)])
 
     extra_material = models.TextField(null=True)
     require_references = models.BooleanField(default=True)
