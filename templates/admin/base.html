@@ -1,6 +1,7 @@
 {% load admin_static %}{% load firstof from future %}<!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 <head>
+    <link href="/favicon.ico" rel="icon" type="image/x-icon" />
     <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet" type="text/css" href="{% block stylesheet %}{% static "admin/css/base.css" %}{% endblock %}"/>
     {% block extrastyle %}{% endblock %}
