@@ -61,11 +61,11 @@ def show_task_as_readonly(obj, request):
 
 
 class ViewNewTasks(admin.ModelAdmin):
-    list_display = ('title', 'type', 'type_icon', 'available_positions', 'deadline',
+    list_display = ('title_safe', 'type', 'type_icon', 'available_positions', 'deadline',
                     'time_to_complete_task')
-    readonly_fields = ('title', 'tags_list', 'type', 'type_icon', 'description', 'requirements', 'submission_type',
+    readonly_fields = ('title_safe', 'tags_list', 'type', 'type_icon', 'description_safe', 'requirements_safe', 'submission_type',
                        'start_date', 'deadline', 'time_to_complete_task', 'number_of_positions', 'available_positions',)
-    fields = ['title', 'description', 'requirements', 'submission_type', 'deadline', 'time_to_complete_task',
+    fields = ['title_safe', 'description_safe', 'requirements_safe', 'submission_type', 'deadline', 'time_to_complete_task',
               'number_of_positions', 'available_positions']
     can_delete = False
     actions = None
@@ -138,7 +138,7 @@ class ViewNewTasks(admin.ModelAdmin):
                                        (opts.app_label, 'interntask'),
                                        args=(new_intern_task_pk,),
                                        current_app=self.admin_site.name)
-                self.message_user(request, msg, messages.SUCCESS)
+                self.message_user(request, msg, messages.SUCCESS, extra_tags='safe')
                 redirect_url = add_preserved_filters({'preserved_filters': preserved_filters, 'opts': opts}, redirect_url)
                 return HttpResponseRedirect(redirect_url)
             return self.response_post_save_change(request, obj)
@@ -176,7 +176,7 @@ class AcceptedInterntasks(admin.TabularInline):
 
 class TaskForAdmin(admin.ModelAdmin):
     list_display = (
-        'title', 'type', 'tags_list', 'submission_type', 'time_to_complete_task', 'start_date', 'deadline',
+        'title_safe', 'type', 'tags_list', 'submission_type', 'time_to_complete_task', 'start_date', 'deadline',
         'number_of_positions', 'number_of_users_accepted')
     fields = ['title', 'type', 'tags', 'description', 'requirements', 'submission_type', 'time_to_complete_task',
                      'deadline', 'number_of_positions', 'expected_results', 'extra_material', 'require_references', 'require_videos']
@@ -200,9 +200,19 @@ class TaskForAdmin(admin.ModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         if show_task_as_readonly(obj, request):
-            return ('title', 'type', 'tags', 'description', 'requirements', 'submission_type', 'time_to_complete_task',
-                    'start_date', 'deadline', 'number_of_positions', 'expected_results', 'extra_material', 'require_references', 'require_videos')
-        return self.readonly_fields
+            readonly_fields = ('title_safe', 'type', 'tags', 'description_safe', 'requirements_safe', 'submission_type', 'time_to_complete_task',
+                    'start_date', 'deadline', 'number_of_positions', 'expected_results_safe', 'extra_material_safe', 'require_references', 'require_videos',)
+        else:
+            readonly_fields = ('start_date',)
+        return readonly_fields
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super().get_fieldsets(request, obj)
+        if show_task_as_readonly(obj=obj, request=request):
+            fields_ = ['title_safe', 'type', 'tags', 'description_safe', 'requirements_safe', 'submission_type', 'time_to_complete_task',
+                    'start_date', 'deadline', 'number_of_positions', 'expected_results_safe', 'extra_material_safe', 'require_references', 'require_videos']
+            fieldsets[0][1].update({'fields': fields_})
+        return fieldsets
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         is_preview = bool(request.GET.get('preview'))
@@ -224,17 +234,48 @@ class TaskForAdmin(admin.ModelAdmin):
     def response_change(self, request, obj):
         opts = self.model._meta
         preserved_filters = self.get_preserved_filters(request)
+        msg_dict = {'name': force_text(opts.verbose_name), 'obj': force_text(obj.title)}
+        pk_value = obj._get_pk_val()
         if '_preview' in request.POST:
             redirect_url = request.path + '?preview=true'
             redirect_url = add_preserved_filters({'preserved_filters': preserved_filters, 'opts': opts}, redirect_url)
             return HttpResponseRedirect(redirect_url)
         elif '_publish' in request.POST:
-            msg_dict = {'name': force_text(opts.verbose_name), 'obj': force_text(obj.title)}
-            msg = _('You published the %(name)s "%(obj)s"!') % msg_dict
-            self.message_user(request, msg, messages.SUCCESS)
+            msg = _('You published the %(name)s %(obj)s!') % msg_dict
+            self.message_user(request, msg, messages.SUCCESS, extra_tags='safe')
             return self.response_post_save_change(request, obj)
+        elif "_continue" in request.POST:
+            msg = _('The %(name)s %(obj)s was changed successfully. You may edit it again below.') % msg_dict
+            self.message_user(request, msg, messages.SUCCESS, extra_tags='safe')
+            redirect_url = request.path
+            redirect_url = add_preserved_filters({'preserved_filters': preserved_filters, 'opts': opts}, redirect_url)
+            return HttpResponseRedirect(redirect_url)
         else:
             return super(TaskForAdmin, self).response_change(request, obj)
+
+    def response_add(self, request, obj, post_url_continue=None):
+        """
+        Determines the HttpResponse for the add_view stage.
+        """
+        opts = obj._meta
+        pk_value = obj._get_pk_val()
+        preserved_filters = self.get_preserved_filters(request)
+
+        msg_dict = {'name': force_text(opts.verbose_name), 'obj': force_text(obj)}
+        # Here, we distinguish between different save types by checking for
+        # the presence of keys in request.POST.
+        if "_continue" in request.POST:
+            msg = _('The %(name)s %(obj)s was added successfully. You may edit it again below.') % msg_dict
+            self.message_user(request, msg, messages.SUCCESS, extra_tags='safe')
+            if post_url_continue is None:
+                post_url_continue = reverse('admin:%s_%s_change' %
+                                            (opts.app_label, opts.model_name),
+                                            args=(pk_value,),
+                                            current_app=self.admin_site.name)
+            post_url_continue = add_preserved_filters({'preserved_filters': preserved_filters, 'opts': opts}, post_url_continue)
+            return HttpResponseRedirect(post_url_continue)
+        else:
+            return super(TaskForAdmin, self).response_add(request, obj)
 
 
 def user_is_admin(user):
@@ -351,8 +392,8 @@ class Dashboard(admin.ModelAdmin):
                 obj.time_ended = timezone.now()
                 obj.save()
                 msg_dict = {'name': force_text(opts.verbose_name), 'obj': force_text(obj.task.title)}
-                msg = _('The %(name)s "%(obj)s" was abandoned!') % msg_dict
-                self.message_user(request, msg, messages.WARNING)
+                msg = _('The %(name)s %(obj)s was abandoned!') % msg_dict
+                self.message_user(request, msg, messages.WARNING, extra_tags='safe')
                 return self.response_post_save_change(request, obj)
             elif '_preview' in request.POST:
                 redirect_url = request.path + '?preview=true'
@@ -363,8 +404,8 @@ class Dashboard(admin.ModelAdmin):
                 obj.time_ended = timezone.now()
                 obj.save()
                 msg_dict = {'name': force_text(opts.verbose_name), 'obj': force_text(obj.task.title)}
-                msg = _('You submitted the %(name)s "%(obj)s"!') % msg_dict
-                self.message_user(request, msg, messages.SUCCESS)
+                msg = _('You submitted the %(name)s %(obj)s!') % msg_dict
+                self.message_user(request, msg, messages.SUCCESS, extra_tags='safe')
                 return self.response_post_save_change(request, obj)
             else:
                 return super(Dashboard, self).response_change(request, obj)
@@ -422,7 +463,7 @@ class LogAdmin(admin.ModelAdmin):
 
 
 class HelpTextAdmin(admin.ModelAdmin):
-    list_display = ('heading', 'content')
+    list_display = ('heading_safe', 'content_safe',)
 
 
 class HelpTextForAdmin(HelpTextAdmin):
@@ -431,7 +472,8 @@ class HelpTextForAdmin(HelpTextAdmin):
 
 class HelpTextForIntern(HelpTextAdmin):
     actions = None
-    readonly_fields = ('heading', 'content')
+    fields = ['heading_safe', 'content_safe']
+    readonly_fields = ('heading_safe', 'content_safe',)
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         extra_context = {
