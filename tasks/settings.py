@@ -23,13 +23,12 @@ MEDIA_URL = '/media/'
 SECRET_KEY = 'qk@lhmatzr$3fu=eua$urd73me&7@7louxx4v5=6p20)+_2f%m'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-TEMPLATE_DEBUG = True
+DEBUG = False
+TEMPLATE_DEBUG = False
 
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
