@@ -358,9 +358,10 @@ class Dashboard(admin.ModelAdmin):
         return fieldsets
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
-        status = InternTask.objects.get(id=object_id).status
-        if status == models.InternTask.UNFINISHED\
-                and not overtime(object_id):
+        intern_task = InternTask.objects.get(id=object_id)
+        if intern_task.status == models.InternTask.UNFINISHED\
+                and not overtime(object_id)\
+                and request.user == intern_task.user:
             is_preview = bool(request.GET.get('preview'))
             extra_context = {
                 'show_save_and_continue': not is_preview,
