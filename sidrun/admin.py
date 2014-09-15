@@ -348,10 +348,12 @@ class Dashboard(admin.ModelAdmin):
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(Dashboard, self).get_fieldsets(request, obj)
-        if show_interntask_as_readonly(obj=obj, request=request):
-            fields_ = fieldsets[0][1]['fields']
-            fields_ = [item for item in fields_ if
-                       item not in ['summary_pitch', 'body', 'conclusion', 'references', 'videos']]
+        fields_ = fieldsets[0][1]['fields']
+        fields_ = [item for item in fields_ if
+                   item not in ['summary_pitch', 'body', 'conclusion', 'references', 'videos']]
+        if obj.status == models.InternTask.UNFINISHED and request.user.groups.filter(name='admins').exists():
+            fieldsets[0][1].update({'fields': fields_})
+        elif show_interntask_as_readonly(obj=obj, request=request):
             fieldsets[0][1].update({'fields': fields_})
             fieldsets[0][1]['fields'].extend(
                 ['summary_pitch_safe', 'body_safe', 'conclusion_safe', 'reference_urls', 'video_urls'])
